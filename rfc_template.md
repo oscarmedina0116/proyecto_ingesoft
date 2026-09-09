@@ -1,16 +1,19 @@
 # Título (lee el source code del markdown para ver los comentarios)
 
 Autores:
- - @githubusername
+ - Oscar Ariza
+ - Oscar Andrade
+ - David Ordonez
+ - Sebastian Rodriguez Leon 
 
-## 1 TL;DR
+## 1 UNALSpace: Sistema Integral para la gestiòn y reserva de espacios universitarios de la Universidad Nacional de Colombia
 
 <!--
 párrafo corto que explica qué estas proponiendo
 -->
 
 ## 2 Motivación
-
+- La motivac mn
 <!--
 ¿qué motiva esta decisión y por qué es importante?
 el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
