@@ -80,6 +80,7 @@ Por ejemplo, cuando interactuamos con un sistema externo que tipo de latencia es
 <!--
 ¿ Qué preguntas no hemos resuelto?
 -->
+¿Lenguaje a utilizar?
 
 ## 9 Conclusión
 
