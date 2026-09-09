@@ -1,20 +1,32 @@
-# Título (lee el source code del markdown para ver los comentarios)
+# UNALSpace
 
 Autores:
- - @githubusername
+ - Oscar Ariza
+ - Oscar Andrade
+ - David Ordoñez Pérez (@dordonezpe)
+ - Sebastian Rodriguez Leon 
 
-## 1 TL;DR
+## 1 UNALSpace: Sistema Integral para la gestiòn y reserva de espacios universitarios de la Universidad Nacional de Colombia
 
 <!--
 párrafo corto que explica qué estas proponiendo
 -->
 
 ## 2 Motivación
-
+- La motivac mn
 <!--
 ¿qué motiva esta decisión y por qué es importante?
 el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
 -->
+
+Actualmente, en la universidad no existe un mecanismo centralizado que permita a los estudiantes conocer en tiempo real la disponibilidad de espacios compartidos como salas de estudio, laboratorios o canchas deportivas. Esto genera varios problemas recurrentes: conflictos de horario entre grupos que llegan a un mismo espacio esperando usarlo, tiempo perdido buscando físicamente un lugar disponible, y subutilización de recursos institucionales que permanecen vacíos simplemente porque nadie sabía que estaban libres.
+
+Como estudiantes de la propia universidad, este es un problema que experimentamos de primera mano y que consideramos representativo de una necesidad real, no hipotética. Resolverlo mediante un sistema de reservas trae valor concreto en dos frentes:
+
+- **Para los estudiantes**: elimina la incertidumbre y el desplazamiento innecesario, permitiendo planear con anticipación el uso de un espacio.
+- **Para la institución**: mejora el aprovechamiento de la infraestructura existente, generando además datos de uso (qué espacios se solicitan más, en qué franjas horarias) que pueden orientar decisiones futuras de gestión de espacios.
+
+Adicionalmente, este dominio resulta apropiado para el desarrollo del proyecto porque combina reglas de negocio no triviales (validación de conflictos de horario, estados de una reserva, control de aforo) con un alcance acotado y verificable, lo que permite aplicar de manera efectiva el marco de trabajo Scrum a lo largo del semestre, con incrementos de producto claros y demostrables en cada sprint.
 
 ## 3 Propuesta de implementación
 
@@ -68,6 +80,7 @@ Por ejemplo, cuando interactuamos con un sistema externo que tipo de latencia es
 <!--
 ¿ Qué preguntas no hemos resuelto?
 -->
+¿Lenguaje a utilizar?
 
 ## 9 Conclusión
 
