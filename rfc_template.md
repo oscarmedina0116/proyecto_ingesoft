@@ -10,7 +10,7 @@ párrafo corto que explica qué estas proponiendo
 -->
 
 ## 2 Motivación
-Hey, este es mi primer pull request
+
 <!--
 ¿qué motiva esta decisión y por qué es importante?
 el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
