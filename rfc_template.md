@@ -3,7 +3,7 @@
 Autores:
  - Oscar Ariza
  - Oscar Andrade
- - David Ordonez
+ - David Ordoñez Pérez (@dordonezpe)
  - Sebastian Rodriguez Leon 
 
 ## 1 UNALSpace: Sistema Integral para la gestiòn y reserva de espacios universitarios de la Universidad Nacional de Colombia
