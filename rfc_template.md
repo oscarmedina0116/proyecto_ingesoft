@@ -3,8 +3,8 @@
 Autores:
  - Oscar Ariza
  - Oscar Andrade
- - David Ordonez
- - Sebastian Rodriguez Leon 
+ - David Ordoñez Pérez (@dordonezpe)
+ - Sebastian Rodriguez Leon (@jrodriguezleo)
 
 ## 1 UNALSpace: Sistema Integral para la gestiòn y reserva de espacios universitarios de la Universidad Nacional de Colombia
 
@@ -88,6 +88,7 @@ Por ejemplo, cuando interactuamos con un sistema externo que tipo de latencia es
 <!--
 ¿ Qué preguntas no hemos resuelto?
 -->
+¿Lenguaje a utilizar?
 
 ## 9 Conclusión
 
