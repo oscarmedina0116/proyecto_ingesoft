@@ -11,8 +11,11 @@ por qué el sistema es como es.
 -->
  
 Autores:
- - @githubusername
-Fecha: AAAA-MM-DD
+ - David Ordoñez Pérez
+ - Juan Sebastian Rodriguez Leon
+ - Oscar David Ariza Rojas
+ - Oscar Andres Andrade Medina 
+Fecha: 2026-09-08
  
 ## Estado
  
@@ -23,7 +26,7 @@ Un ADR "Propuesto" está en discusión. Una vez el equipo decide, pasa a
 modifica su contenido de fondo.
 -->
  
-Pendiente por aprobación.
+Revisado después de la presentación oral (10 de septiembre, en clase). 
  
 ## Contexto
  
@@ -51,11 +54,11 @@ van abajo.
 -->
 
 #### Capa	Tecnología (STACK)
-Backend:	NestJS
+Backend:	Node.JS con Express.JS
 Frontend:	React
 Base de datos:	PostgreSQL
 
-NestJS será utilizado para desarrollar la API y manejar la lógica de negocio del sistema. Se selecciona por su estructura modular, uso de TypeScript y facilidad para organizar funcionalidades como usuarios, espacios y reservas.
+Node.JS con Express.JS será utilizado para desarrollar la API y manejar la lógica de negocio del sistema. Se selecciona por su estructura modular, uso de JavaScript y facilidad para organizar funcionalidades como usuarios, espacios y reservas.
 
 React será utilizado para construir la interfaz web. Su arquitectura basada en componentes permite reutilizar elementos de la aplicación y construir interfaces dinámicas para consultar disponibilidad y realizar reservas.
 
@@ -71,7 +74,7 @@ aprendizaje, no cumple un requisito, etc.).
 -->
 
 #### Backend
-Express.js: más sencillo y flexible, pero proporciona menos estructura para organizar un proyecto de mayor tamaño.
+Nest.js: más sencillo y flexible, pero proporciona menos estructura para organizar un proyecto de mayor tamaño.
 Django: ofrece una estructura completa, pero implicaría utilizar Python y otro ecosistema tecnológico diferente al seleccionado.
 #### Frontend
 Angular: ofrece una estructura completa, pero presenta una mayor curva de aprendizaje.
@@ -84,12 +87,11 @@ MongoDB: ofrece flexibilidad mediante documentos, pero el dominio de UNALSpace p
 #### Positivas
 - Separación clara entre frontend, backend y persistencia.
 - Permite desarrollar el sistema de forma modular.
-- TypeScript en el backend y frontend facilita mantener tipos consistentes.
+- JavaScript en el backend y frontend facilita mantener tipos consistentes.
 - PostgreSQL permite establecer relaciones e integridad entre los datos.
 - El stack cuenta con tecnologías ampliamente utilizadas y con abundante documentación.
 #### Negativas
 - El equipo debe aprender y configurar tres tecnologías principales.
-- NestJS puede resultar más complejo que alternativas minimalistas como Express.
 - React requiere herramientas adicionales para cubrir algunas funcionalidades de una aplicación completa.
 - PostgreSQL requiere diseñar correctamente el modelo relacional y sus relaciones.
 <!--
@@ -98,23 +100,5 @@ Incluye efectos positivos y negativos por igual — un ADR honesto
 también documenta el costo que se está aceptando (deuda técnica
 introducida, dependencia nueva, curva de aprendizaje del equipo).
 -->
- 
----
- 
-### Diferencia con un RFC (referencia rápida)
- 
-<!--
-Elimina esta sección en el ADR final; queda aquí solo como recordatorio
-para quien usa la plantilla.
-- Un RFC se escribe ANTES de decidir, para abrir discusión y llegar a
-  consenso; es un documento "vivo" mientras dura la deliberación.
-- Un ADR registra una decisión YA tomada (o que se está formalizando);
-  una vez aceptado, es casi inmutable — si cambia, se escribe un ADR
-  nuevo que reemplaza al anterior, no se edita el viejo.
-- El RFC suele ser más largo (motivación, métricas, riesgos, preguntas
-  abiertas); el ADR es deliberadamente corto: Contexto, Decisión,
-  Consecuencias.
-- En equipos que usan ambos: el RFC es el proceso de deliberación,
-  y al cerrarlo se destila un ADR corto como registro histórico de lo
-  que finalmente se decidió.
--->
+
+
