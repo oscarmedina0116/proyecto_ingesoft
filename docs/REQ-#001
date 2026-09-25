@@ -1,0 +1,7 @@
+Requisito Funcional (RF-01):
+
+El sistema debe permitir a los estudiantes consultar el estado de disponibilidad de cualquier espacio universitario al momento de realizar la búsqueda.
+
+Requisito No Funcional (RNF-01 - Desempeño):
+
+El sistema debe desplegar los resultados de disponibilidad del espacio en un tiempo máximo de 10 segundos tras la solicitud de consulta del usuario.
