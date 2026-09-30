@@ -10,7 +10,7 @@ tras la solicitud de consulta del usuario.
 ------------------------------------------------------------------------------------------------------------------------------------------------
 Requisito Funcional (RF-02):
 
-El sistema debe permitir a los estudiantes visualizar la información detallada de cada espacio universitario, 
+El sistema debe mostrar a los estudiantes la información detallada de cada espacio universitario, 
 incluyendo su imagen representativa, su descripción de características físicas y su ubicación puntual (edificio y ubicación relativa en el campus).
 
 Requisito No Funcional (RNF-02 - Desempeño y Calidad):
