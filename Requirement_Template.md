@@ -85,13 +85,13 @@ HOW TO USE THIS TEMPLATE
 
 ## 3. Priority & Estimation
 
-**Priority model used:** MoSCoW / Kano / RICE / WSJF / Value-Effort *(pick the one that fits the decision you're actually making — see Class 10's comparison if you need to decide which)*
+**Priority model used:** MoSCoW 
+**Priority assigned:** (M) Must Have 
 
-**Priority assigned:**
-> Because [the situation/signal from your project], we assigned [priority value], accepting the trade-off of [what you're giving up by not prioritizing it higher/lower]. We considered [alternative priority] and didn't use it because [reason].
+> Debido a que el objetivo fundamental de UNAL-SPACE es resolver el problema de desorientación de los estudiantes mostrando qué es y dónde está un espacio, Le asignamos Must Have, aceptando el costo de dedicar el mayor esfuerzo inicial a estructurar la base de datos de imágenes y ubicaciones en lugar de desarrollar características secundarias, como un sistema de reservas o perfiles de usuario. Consideramos asignarle Should Have (importante pero no vital) pero no lo usamos porque si el estudiante puede entrar a la app pero no puede ver la foto ni la ubicación del espacio, el producto no entrega ningún valor y la necesidad principal queda sin resolver.
 
-**Estimate (confidence):** High / Medium / Low
-> How sure are we about the size and shape of this work? *(This is a confidence tag, not a technique-based number — named estimation techniques like story points are Ingeniería de Software II content, not this course.)*
+**Estimate (confidence):** Medium
+> How sure are we about the size and shape of this work? *Tenemos una confianza Media (Medium). Aunque a nivel de interfaz es un flujo estándar (seleccionar un ítem y ver su detalle), la forma de este trabajo aún tiene incertidumbre técnica documentada en nuestras Open Questions. Específicamente, no hemos definido si la ubicación exacta requerirá la integración de un mapa interactivo (API de mapas, coordenadas) o si bastará con texto estático relativo. Además, la gestión del peso de las imágenes dada la alta resolución podría impactar la arquitectura de la base de datos.*
 
 ---
 
