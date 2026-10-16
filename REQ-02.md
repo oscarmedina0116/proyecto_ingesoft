@@ -5,7 +5,7 @@
 | **Status** | Draft |
 | **Team / Author(s)** | Oscar Andres Andrade Medina, Oscar David Ariza Rojas, David Fernando Ordoñez Pérez, Juan Sebastián Rodríguez León |
 | **Date** | 16 de Octubre de 2026 |
-| **Linked User Story / AC** | HU-001 "User Story UNAL-SPACE" — *Pendiente de confirmar qué Criterios de Aceptación de la HU cubren este requerimiento (ver Open Question #1).* |
+| **Linked User Story / AC** | HU-001 "User Story UNAL-SPACE" |
 
 ---
 
@@ -14,10 +14,10 @@
 **Requirement Statement**
 > El sistema deberá permitir a los estudiantes consultar el estado de disponibilidad de cualquier espacio universitario al momento de realizar la búsqueda.
 
-**Type:** Functional (Filtro de la Tecnología Perfecta: con una computadora perfecta —velocidad infinita, memoria ilimitada, cero fallos— el estudiante seguiría necesitando saber si el espacio está disponible. La necesidad no desaparece → funcional. Nota: la expectativa de "al momento de la búsqueda" (qué tan actualizado debe estar el dato) es un aspecto de calidad que se deja como Open Question, no se mezcla aquí).
+**Type:** Functional (Filtro de la Tecnología Perfecta: con una computadora perfecta —velocidad infinita, memoria ilimitada, cero fallos— el estudiante seguiría necesitando saber si el espacio está disponible. La necesidad no desaparece → funcional. 
 
 **Source / Evidence**
-> Requerimiento formulado por el equipo para UNAL-SPACE. **Evidencia primaria pendiente:** aún no está referenciada la entrevista, entrada del Discovery Sheet o minuta de donde proviene (ver Open Question #1).
+> No hay evidencia clara además de la intención de brindar un servicio rápido (segundos) y centralizado en un solo dispositivo para poder responder rápido a la demanda del estudiante. Se analizó con la entrevista de requerimientos que se hizo con otro grupo. 
 
 **Need**
 > Saber si un espacio del campus está disponible en este momento, para decidir si ir a él o buscar otra opción sin perder tiempo.
@@ -30,15 +30,15 @@
 ## 2. Context — A Requirement Rarely Stands Alone
 
 **Business Rule(s)**
-> N/A — none identified. Hasta ahora no se ha identificado ninguna regla del dominio (por ejemplo, quién puede usar qué espacio o con qué antelación) que este requerimiento deba hacer cumplir; el requerimiento solo pide mostrar el estado.
+> N/A — none identified. 
 
 **Constraint(s)**
-> N/A — none identified. No se ha identificado ninguna regulación, tecnología obligatoria o política institucional que limite cómo resolver este requerimiento.
+> N/A — none identified.
 
 **Assumption(s)**
-> - Cada espacio tiene un identificador único (heredado de REQ-01). (No verificado formalmente).
-> - Es posible determinar el estado de disponibilidad de cada espacio con la información que maneja el sistema. (No verificado: depende de la Open Question #2).
-> - El estado de disponibilidad se puede expresar con un conjunto finito y claro de valores (por ejemplo, "Disponible" / "Ocupado"). (No verificado: depende de la Open Question #3).
+> - Cada espacio tiene un identificador único (heredado de REQ-01).
+> - Es posible determinar el estado de disponibilidad de cada espacio con la información que maneja el sistema.
+> - El estado de disponibilidad se puede expresar con un conjunto finito y claro de valores (por ejemplo, "Disponible" / "Ocupado"). 
 > - Los estudiantes consultan la disponibilidad desde la aplicación con conexión a internet.
 
 **Dependenc(ies)**
@@ -58,12 +58,11 @@
 | Fallo de conexión o timeout | Medio | Bajo | Desplegar Toast: "Error de conexión. No se pudo cargar el estado de disponibilidad. Revisa tu conexión a internet e inténtalo nuevamente." |
 
 **Open Questions**
-> 1. **Evidencia primaria y HU:** Falta referenciar la entrevista/Discovery Sheet de donde sale este requerimiento y confirmar con qué Criterios de Aceptación de la HU-001 se relaciona.
-> 2. **Fuente de la disponibilidad:** ¿El estado se calcula a partir de reservas/agenda del sistema de agendamiento o lo actualiza manualmente un administrador? En REQ-01 se pospusieron las reservas, por lo que hay que definir cómo se obtiene este dato en el MVP.
-> 3. **Definición de "disponibilidad":** ¿Qué estados existen? ¿Solo "Disponible" / "Ocupado" o también "Reservado", "En mantenimiento", etc.? (Esto cierra parcialmente la Open Question #3 de REQ-01.)
-> 4. **Alcance de "al momento de realizar la búsqueda":** ¿Significa el instante actual o una fecha/franja horaria elegida por el estudiante? ¿Qué desfase máximo es aceptable entre el estado real y el mostrado?
-> 5. **"Búsqueda":** REQ-01 describe una lista de espacios y su detalle, pero no una función de búsqueda. ¿Existe (o existirá) un buscador/filtro? ¿Dónde se muestra el estado: en la lista, en el detalle, o en ambos?
-> 6. **"Cualquier espacio":** ¿Aplica a todos los tipos de espacio (canchas, laboratorios, etc.), incluidos aquellos que no se pueden agendar?
+> 1. **Fuente de la disponibilidad:** ¿El estado se calcula a partir de reservas/agenda del sistema de agendamiento o lo actualiza manualmente un administrador? En REQ-01 se pospusieron las reservas, por lo que hay que definir cómo se obtiene este dato en el MVP.
+> 2. **Definición de "disponibilidad":** ¿Qué estados existen? ¿Solo "Disponible" / "Ocupado" o también "Reservado", "En mantenimiento", etc.? (Esto cierra parcialmente la Open Question #3 de REQ-01.)
+> 3. **Alcance de "al momento de realizar la búsqueda":** ¿Significa el instante actual o una fecha/franja horaria elegida por el estudiante? ¿Qué desfase máximo es aceptable entre el estado real y el mostrado?
+> 4. **"Búsqueda":** REQ-01 describe una lista de espacios y su detalle, pero no una función de búsqueda. ¿Existe (o existirá) un buscador/filtro? ¿Dónde se muestra el estado: en la lista, en el detalle, o en ambos?
+> 5. **"Cualquier espacio":** ¿Aplica a todos los tipos de espacio (canchas, laboratorios, etc.), incluidos aquellos que no se pueden agendar?
 
 ---
 
@@ -72,7 +71,7 @@
 **Priority model used:** MoSCoW
 **Priority assigned:** (S) Should Have
 
-> Debido a que REQ-01 ya resuelve la necesidad principal de UNAL-SPACE (saber qué es y dónde está un espacio) y que la disponibilidad depende de una fuente de datos que aún no está definida, le asignamos **Should Have**, aceptando el costo de que, mientras no se implemente, los estudiantes puedan desplazarse a espacios ocupados. Consideramos asignarle **Must Have**, pero lo descartamos porque el producto ya entrega valor sin este requerimiento y su alcance todavía tiene preguntas abiertas que impiden comprometerlo como esencial. *Esta prioridad deberá revisarse si la evidencia (Open Question #1) muestra que la disponibilidad es la necesidad central del sistema de agendamiento.*
+> Debido a que REQ-01 ya resuelve la necesidad principal de UNAL-SPACE (saber qué es y dónde está un espacio) y que la disponibilidad depende de una fuente de datos que aún no está definida, le asignamos **Should Have**, aceptando el costo de que, mientras no se implemente, los estudiantes puedan desplazarse a espacios ocupados. Consideramos asignarle **Must Have**, pero lo descartamos porque el producto ya entrega valor sin este requerimiento y su alcance todavía tiene preguntas abiertas que impiden comprometerlo como esencial. 
 
 **Estimate (confidence):** Low
 > **How sure are we about the size and shape of this work?** Confianza Baja (Low). La interfaz (mostrar un estado) es sencilla, pero hay incertidumbre alta: no sabemos de dónde saldrá el dato de disponibilidad, qué estados existen ni qué tan actualizado debe estar. Estas incógnitas (Open Questions #2, #3 y #4) pueden cambiar mucho el tamaño real del trabajo.
@@ -145,36 +144,37 @@
 ```mermaid
 graph TD
     A(["Estudiante realiza la búsqueda de espacios"]) --> B{"¿Error de conexión o Timeout?"}
-
+ 
     %% Excepción
     B -- Sí --> C["Mostrar Toast: 'Error de conexión'"]
     C --> Z(["Fin del Caso de Uso"])
-
+ 
     %% Flujo principal y alternativa
     B -- No --> D{"¿El espacio tiene estado de disponibilidad registrado?"}
     D -- Sí --> E["Mostrar estado de disponibilidad al momento de la búsqueda"]
     D -- No --> F["Mostrar: 'Disponibilidad no registrada'"]
-
+ 
     E --> G["Estudiante revisa los estados y decide"]
     F --> G
     G --> Z
-
+ 
     %% Estilos para diferenciar flujos
     classDef mainFlow fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000;
     classDef altFlow fill:#fff3cd,stroke:#ffc107,stroke-width:2px,color:#000;
     classDef excFlow fill:#f8d7da,stroke:#dc3545,stroke-width:2px,color:#000;
-
+ 
     class E,G mainFlow;
     class F altFlow;
     class C excFlow;
 ```
+
 
 ---
 
 ## 5. Traceability & Impact
 
 **Backward — why does this requirement exist?**
-> Evidencia → Necesidad → Requerimiento. La necesidad ("saber si un espacio está disponible ahora para decidir si ir") está identificada, pero la **evidencia primaria aún no está referenciada** (Open Question #1). Además, este requerimiento se relaciona con la Open Question #3 de REQ-01, que ya anticipaba la posibilidad de mostrar un estado dinámico ("Disponible", "Ocupado").
+> Evidencia → Necesidad → Requerimiento. La necesidad ("saber si un espacio está disponible ahora para decidir si ir") está identificada, pero la **evidencia primaria aún no está referenciada**. Además, este requerimiento se relaciona con la Open Question #3 de REQ-01, que ya anticipaba la posibilidad de mostrar un estado dinámico ("Disponible", "Ocupado").
 
 **Forward — what will this affect?**
 > Requerimiento → Diseño → Implementación → Pruebas. Se espera que afecte:
@@ -182,7 +182,7 @@ graph TD
 > - **Implementación:** consulta del estado junto con la información del espacio y manejo de los casos sin dato y con error de conexión.
 > - **Pruebas:** un caso de prueba por cada escenario de aceptación (5 en total).
 >
-> *Se actualizará cuando inicie el trabajo de Diseño (Clase 11).*
+> *Se actualizará cuando inicie el trabajo de Diseño.*
 
 **Impact Analysis — if this requirement changes, what else might need to change?**
 - [ ] Business Rules
@@ -201,7 +201,7 @@ graph TD
 
 ## 6. Validation — Quality Gate
 
-- [ ] **Valid?** Falta la evidencia primaria (Open Question #1); la necesidad parece real pero aún no está respaldada.
+- [ ] **Valid?** Falta la evidencia primaria; la necesidad parece real pero aún no está respaldada.
 - [ ] **Clear / Unambiguous?** "Disponibilidad", "al momento de realizar la búsqueda" y "cualquier espacio" admiten varias interpretaciones (Open Questions #3, #4, #5, #6).
 - [x] **Atomic?** Expresa una sola expectativa verificable: mostrar el estado de disponibilidad de un espacio.
 - [x] **Necessary?** Sin ella, el estudiante puede desplazarse a un espacio ocupado, lo cual afecta directamente el objetivo del sistema de agendamiento.
@@ -211,4 +211,4 @@ graph TD
 - [ ] **Complete enough?** Faltan definir estados de disponibilidad y dónde se muestran.
 - [ ] **Traceable?** Falta enlazar la evidencia primaria y los Criterios de Aceptación de la HU.
 
-> **Qué falta:** las preguntas #1 y #5 envían de vuelta a **Clase 8 (re-elicitar)** con los stakeholders; las #2, #3, #4 y #6 envían a **Clase 9 (re-especificar)** una vez se tengan las respuestas. Mientras tanto el requerimiento permanece en **Draft**.
+> **Qué falta:** las preguntas #1 y #5 envían de vuelta a los stakeholders; las #2, #3, #4 y #6 envían a **re-especificar** una vez se tengan las respuestas. Mientras tanto el requerimiento permanece en **Draft**.
