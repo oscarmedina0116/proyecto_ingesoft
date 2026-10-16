@@ -13,189 +13,190 @@ HOW TO USE THIS TEMPLATE
    reference before you start.
 -->
 
-# [REQ-ID] — [Short Requirement Title]
+# [REQ-01] — Consulta de detalle y ubicación de espacios universitarios
 
 | | |
 |---|---|
-| **Status** | Draft / Validated / Open Question |
-| **Team / Author(s)** | |
-| **Date** | |
-| **Linked User Story / AC** | |
+| **Status** | Ready |
+| **Team / Author(s)** | Oscar Andres Andrade Medina, Oscar David Ariza Rojas, David Fernando Ordoñez Pérez, Juan Sebastián Rodríguez León |
+| **Date** | 09 de Octubre de 2026 |
+| **Linked User Story / AC** | HU-001 "User Story UNAL-SPACE" — Criterios de Aceptación #1 y #2 |
 
 ---
 
 ## 1. Overview
 
 **Requirement Statement**
-> The system shall [capability/behavior] [under what condition, if applicable].
+> El sistema deberá mostrar la información detallada de los espacios del campus (tales como canchas y laboratorios), incluyendo su imagen representativa, su descripción de características físicas y su ubicación de referencia.
 
-**Type:** Functional / Non-functional
-*(Classified using the Perfect Technology Filter from Class 8: imagine a perfect computer — infinite speed, unlimited memory, zero failures, zero cost. Would this requirement still matter? Yes → likely functional. The limitation disappears with perfect technology → likely non-functional.)*
+**Type:** Functional (Filtro de la Tecnología Perfecta: con una computadora perfecta —velocidad infinita, memoria ilimitada, cero fallos— el estudiante seguiría necesitando ver la foto, las características y la ubicación del espacio. La necesidad no desaparece → funcional).
 
 **Source / Evidence**
-> Where did this come from? (stakeholder, interview, workshop, existing system, regulation — reference your Class 8 Discovery Sheet entry if you have one)
+> Entrevista mediada en clase para conocer los requerimientos y opiniones sobre la centralización y prioridad del servicio como objeto de situación cotidiana.
 
 **Need**
-> What is the underlying need, stated as a goal — not a solution? (e.g. "know when my order will arrive," not "build a GPS map")
+> Saber cómo es un espacio del campus y dónde está, para reconocerlo y llegar a él sin perderse.
 
 **Value / Rationale**
-> Why does this requirement matter? What becomes better for the user/business if it's satisfied? *(This is usually the same as the "so that" of your User Story below — write it once and reuse it, don't rewrite it from scratch.)*
+> Identificar fácilmente los espacios y orientarse correctamente dentro de la universidad.
 
 ---
 
 ## 2. Context — A Requirement Rarely Stands Alone
 
-*(Class 10. Fill honestly — "N/A — none identified" is a valid, expected answer for several of these.)*
-
 **Business Rule(s)**
-> What rule(s) exist in the business/domain, independent of software, that this requirement supports or enforces? Remember: Business Rule ≠ Software Requirement — not every rule needs one.
+> N/A — none identified.
 
 **Constraint(s)**
-> What limits how this requirement can be solved (regulation, existing technology, contract, interoperability, organizational policy)? A constraint reduces the available design space — it doesn't describe what must be satisfied, it describes what limits the solution.
+> N/A — none identified.
 
 **Assumption(s)**
-> What are we currently treating as true, without full verification, to keep moving? (Assumption ≠ Fact.)
+> - Cada espacio tiene un identificador único, ya que el sistema maneja validaciones de "ID inválido" y enlaces directos a un espacio.
+> - Existe un panel administrativo desde el cual se gestiona la información de los espacios. (No verificado formalmente en este requerimiento).
+> - Las imágenes y datos descriptivos de los espacios se almacenan en una base de datos centralizada. (No verificado).
 
 **Dependenc(ies)**
-> What does this requirement rely on to be satisfied (another requirement, an external system/API, a data source, a third party, an organizational process)?
+> - Base de datos con la información de los espacios (imagen, características, ubicación).
+> - Panel administrativo que permita cargar y actualizar esa información.
+> - Conexión a internet estable por parte del estudiante.
 
 **Risk(s)**
-> What uncertain event or condition could negatively affect this requirement or its delivery? For each risk, note a rough Likelihood and Impact (High / Medium / Low) and, if you have one, a brief mitigation note.
+> Derivados principalmente de los escenarios de manejo de errores en la carga de datos.
 
 | Risk | Likelihood | Impact | Mitigation (optional) |
 |---|---|---|---|
-| | | | |
+| Espacio sin fotografía cargada | Medio | Alto | Mostrar imagen por defecto "Imagen no disponible" sin romper el diseño de la interfaz. |
+| Datos de características físicas incompletos | Medio | Alto | Mostrar texto por defecto "Características físicas aún no registradas". |
+| Fallo de conexión o timeout | Medio | Bajo | Desplegar Toast: "Error de conexión. No se pudo cargar la información detallada del espacio. Revisa tu conexión a internet e inténtalo nuevamente." |
+| Enlace a un espacio borrado (ID inválido) | Bajo | Bajo | Mostrar mensaje: "El espacio solicitado no existe o fue retirado del sistema." |
 
 **Open Questions**
-> Anything still unresolved — ambiguity, a question no stakeholder has answered yet, a missing piece of evidence. List it here instead of guessing.
+> 1. **Enlace a evidencia primaria:** Queda pendiente anexar el link o referencia exacta al acta/minuta de la entrevista en clase de donde salió este requerimiento.
+> 2. **Arquitectura y Almacenamiento de Imágenes:** A nivel técnico aún no se ha definido dónde se alojarán las imágenes representativas (¿AWS S3, Firebase, servidor propio?) ni cuál será el peso máximo permitido para no afectar el tiempo de carga.
+> 3. **Atributo de "Estado" del Espacio:** Queda por definir en la arquitectura si el modelo de datos requerirá mostrar en esta vista un estado dinámico (ej. "Disponible", "Ocupado") o solo información estática.
+> 4. **Escalabilidad de la Ubicación:** Para el MVP usaremos ubicación textual/relativa. ¿Se integrará un mapa interactivo (API de Google Maps/coordenadas) en una fase 2 de desarrollo?
 
 ---
 
 ## 3. Priority & Estimation
 
-**Priority model used:** MoSCoW / Kano / RICE / WSJF / Value-Effort *(pick the one that fits the decision you're actually making — see Class 10's comparison if you need to decide which)*
+**Priority model used:** MoSCoW
+**Priority assigned:** (M) Must Have
 
-**Priority assigned:**
-> Because [the situation/signal from your project], we assigned [priority value], accepting the trade-off of [what you're giving up by not prioritizing it higher/lower]. We considered [alternative priority] and didn't use it because [reason].
+> Debido a que el objetivo fundamental de UNAL-SPACE es resolver el problema de desorientación de los estudiantes mostrando qué es y dónde está un espacio, le asignamos **Must Have**, aceptando el costo de dedicar el mayor esfuerzo inicial a estructurar la base de datos de imágenes y ubicaciones, postergando características secundarias (como reservas o perfiles). Consideramos asignarle **Should Have**, pero lo descartamos porque si el estudiante puede entrar a la app pero no ver la foto ni la ubicación del espacio, el producto no entrega ningún valor y la necesidad principal queda sin resolver.
 
-**Estimate (confidence):** High / Medium / Low
-> How sure are we about the size and shape of this work? *(This is a confidence tag, not a technique-based number — named estimation techniques like story points are Ingeniería de Software II content, not this course.)*
+**Estimate (confidence):** Medium
+> **How sure are we about the size and shape of this work?** Tenemos una confianza Media (Medium). Aunque a nivel de interfaz de usuario es un flujo estándar (seleccionar un ítem y ver su detalle), la arquitectura detrás de este trabajo aún tiene incertidumbre técnica documentada en nuestras *Open Questions*. Específicamente, falta la definición sobre el almacenamiento de imágenes y la posibilidad de estructurar la ubicación previendo una futura integración de mapas.
 
 ---
 
 ## 4. Representations — Requirement ≠ Representation
 
-*(Class 9. Each representation reveals different information. Fill in all three below — for this capstone requirement, all three are required.)*
-
 ### 4.1 User Story
 
-> As a **[role]**,
-> I want **[capability]**,
-> so that **[value]**.
-
-*Check yourself: is the "I want" describing the need, or already prescribing a solution?*
+> Como **[estudiante]**,
+> quiero **[consultar la información de los diferentes espacios del campus (fotografía representativa, características físicas y ubicación de referencia)]**,
+> tal que **[pueda identificarlos fácilmente y orientarme correctamente dentro de la universidad]**.
 
 ### 4.2 Acceptance Criteria
 
 *(At least two scenarios: one normal path, one alternative or exception.)*
 
-**Scenario 1 — [short name]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
+**Scenario 1 — [Información visual y descriptiva del espacio]**
+> **Given** [que soy un estudiante que navega en la sección de espacios universitarios]
+> **When** [selecciono un espacio específico]
+> **Then** [el sistema despliega una imagen representativa clara (sin distorsión ni pixelado según la pantalla) del espacio y la descripción de sus características físicas (ej. capacidad, equipamiento o tipo de espacio).]
 
-**Scenario 2 — [short name, alternative or exception]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
+**Scenario 2 — [Ubicación física y relativa dentro del campus]**
+> **Given** [que estoy consultando el detalle de un espacio universitario]
+> **When** [reviso el apartado de ubicación]
+> **Then** [el sistema muestra el nombre o número del edificio en el que se encuentra y su ubicación relativa en el campus (ej. "Edificio A, 2° piso, al lado de la biblioteca principal").]
+
+**Scenario 3 — [Ausencia de fotografía (alternativa)]**
+> **Given** [que el espacio seleccionado no tiene una imagen cargada en la base de datos]
+> **When** [consulto su detalle]
+> **Then** [el sistema muestra una imagen por defecto que dice "Imagen no disponible", sin romper el diseño visual de la pantalla.]
+
+**Scenario 4 — [Datos incompletos (alternativa)]**
+> **Given** [que faltan datos de características físicas del espacio]
+> **When** [consulto su detalle]
+> **Then** [el sistema muestra el texto "Características físicas aún no registradas" en lugar de un espacio en blanco o errores de código.]
+
+**Scenario 5 — [Fallo de conexión o timeout (excepción)]**
+> **Given** [que estoy consultando el detalle de un espacio]
+> **When** [ocurre un fallo de conexión o timeout en el dispositivo]
+> **Then** [el sistema muestra una alerta tipo toast: "Error de conexión. No se pudo cargar la información detallada del espacio. Revisa tu conexión a internet e inténtalo nuevamente."]
+
+**Scenario 6 — [Espacio no encontrado (excepción)]**
+> **Given** [que ingreso a través de un enlace a un espacio que fue borrado (ID inválido)]
+> **When** [el sistema intenta cargar la vista de detalle]
+> **Then** [el sistema muestra el mensaje: "El espacio solicitado no existe o fue retirado del sistema."]
 
 ### 4.3 Use Case
 
 | Field | |
 |---|---|
-| **Use Case name** | |
-| **Actor** | |
-| **Goal** | |
-| **Trigger** | |
-| **Precondition** | |
+| **Use Case name** | Consultar detalle de un espacio del campus |
+| **Actor** | Estudiante |
+| **Goal** | Conocer la imagen, características físicas y ubicación de un espacio para identificarlo y llegar a él |
+| **Trigger** | El estudiante selecciona un espacio en la lista de espacios universitarios |
+| **Precondition** | El estudiante se encuentra en la aplicación y tiene conexión a la red |
 
 **Main Flow**
-1.
-2.
-3.
-4.
+> 1. El estudiante navega en la sección de espacios universitarios.
+> 2. El estudiante selecciona un espacio específico de la lista.
+> 3. El sistema busca la información asociada al identificador del espacio.
+> 4. El sistema despliega la imagen representativa y la descripción de las características físicas del espacio.
+> 5. El estudiante revisa el apartado de ubicación y el sistema muestra el edificio y la ubicación relativa en el campus.
 
 **Alternative Flow**
-> [Condition] → [what happens instead]
+> - [El espacio no tiene imagen] → [el sistema muestra la imagen por defecto "Imagen no disponible" en el paso 4 y continúa el flujo normal.]
+> - [Faltan características físicas] → [el sistema muestra "Características físicas aún no registradas" en el paso 4 y continúa el flujo normal.]
 
 **Exception**
-> [Condition] → [what happens instead]
+> - [Fallo de conexión o timeout] → [En el paso 3, el sistema muestra un toast de error de conexión y detiene el caso de uso.]
+> - [ID de espacio inválido (borrado)] → [En el paso 3, el sistema muestra el mensaje "El espacio solicitado no existe o fue retirado" y detiene el caso de uso.]
 
 **Postcondition**
->
+> El estudiante ha visualizado la información disponible del espacio (o ha sido informado claramente de por qué no se pudo cargar) y puede utilizar estos datos para ubicar el lugar en el campus.
 
 **Flow Diagram**
-*(Replace the labels below with your own steps. Keep Main Flow, Alternative, and Exception visually distinct — delete whichever branch doesn't apply to your use case. This renders automatically on GitHub.)*
 
 ```mermaid
-flowchart TD
-    A([Trigger: what starts this use case]) --> B["1. Main flow step"]
-    B --> C["2. Main flow step"]
-    C --> D{"Decision point, if any"}
-    D -- "Normal path" --> G["3. Main flow step"]
-    G --> H(["Postcondition / goal reached"])
-    D -- "Alternative condition" --> E["ALTERNATIVE: what happens instead"]
-    E --> H
-    D -- "Exception condition" --> F["EXCEPTION: what happens instead"]
-    F --> H
-
-    classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
-    classDef alt fill:#F2A541,color:#1E2761,stroke:#F2A541;
-    classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
-    class B,C,G mainflow;
-    class E alt;
-    class F exception;
-```
-
----
-
-## 5. Traceability & Impact
-
-*(Class 10. Conceptual, not a formal matrix.)*
-
-**Backward — why does this requirement exist?**
-> Evidence → Need → Requirement. Point to the specific evidence/need entries that justify this requirement (from your Discovery Sheet).
-
-**Forward — what will this affect?**
-> Requirement → future Design → Implementation → Tests. *(It's fine if Design hasn't happened yet — note what you expect this to touch once it does, and update this section once Class 11 work begins.)*
-
-**Impact Analysis — if this requirement changes, what else might need to change?**
-- [ ] Business Rules
-- [ ] Constraints
-- [ ] Dependencies
-- [ ] Risks
-- [ ] Acceptance Criteria
-- [ ] Estimate
-- [ ] Priority
-- [ ] Future Design
-- [ ] Future Tests
-
-> Briefly note which of the above are actually likely to be affected, and why.
-
----
-
-## 6. Validation — Quality Gate
-
-*(Class 9 + Class 10. Self-audit before you commit this file. Check honestly — a "no" here means the requirement isn't ready yet, not that you should force a checkmark.)*
-
-- [ ] **Valid?** Does it reflect a real, evidenced need — not an invented one?
-- [ ] **Clear / Unambiguous?** Is there only one reasonable interpretation?
-- [ ] **Atomic?** Is this one independently testable expectation, not several bundled together?
-- [ ] **Necessary?** Does removing it actually break something real?
-- [ ] **Feasible?** Can this realistically be built with what the team has?
-- [ ] **Verifiable?** Can you demonstrate, concretely, whether it's satisfied?
-- [ ] **Consistent?** Does it conflict with any other requirement in your set?
-- [ ] **Complete enough?** Are there important functions or constraints still missing?
-- [ ] **Traceable?** Can every part of this document be traced back to real evidence — not invented to fill a section?
-
-> If any box is unchecked, say what's missing and whether it becomes an Open Question or sends you back to Class 8 (re-elicit) or Class 9 (re-specify).
+graph TD
+    %% Inicio del flujo
+    A([Estudiante selecciona un espacio]) --> B{¿Error de conexión o Timeout?}
+    
+    %% Excepciones
+    B -- Sí --> C[Mostrar Toast: 'Error de conexión']
+    C --> Z([Fin del Caso de Uso])
+    B -- No --> D{¿ID del espacio es válido?}
+    
+    D -- No --> E[Mostrar: 'El espacio no existe']
+    E --> Z
+    
+    %% Flujo Principal y Alternativas
+    D -- Sí --> F{¿Tiene fotografía cargada?}
+    
+    F -- No --> G[Mostrar imagen por defecto 'Imagen no disponible']
+    F -- Sí --> H[Desplegar imagen representativa]
+    
+    G --> I{¿Tiene características físicas?}
+    H --> I
+    
+    I -- No --> J[Mostrar: 'Características físicas aún no registradas']
+    I -- Sí --> K[Desplegar descripción de características]
+    
+    J --> L[Mostrar edificio y ubicación relativa en el campus]
+    K --> L
+    
+    L --> Z
+    
+    %% Estilos para diferenciar flujos
+    classDef mainFlow fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#000;
+    classDef altFlow fill:#fff3cd,stroke:#ffc107,stroke-width:2px,color:#000;
+    classDef excFlow fill:#f8d7da,stroke:#dc3545,stroke-width:2px,color:#000;
+    
+    class H,K,L mainFlow;
+    class G,J altFlow;
+    class C,E excFlow;
