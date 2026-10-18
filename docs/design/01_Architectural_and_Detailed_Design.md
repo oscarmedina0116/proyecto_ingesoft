@@ -85,9 +85,36 @@ INICIO consultarEstadoActual(espacioId)
         registrarLog("Error de timeout al consultar base de datos en Motor")
         lanzar Excepcion("Fallo de conexión. No se pudo cargar el estado de disponibilidad.") // Manejado por API_GW
 FIN
+
+
     reservas ..> motor : Usa para validar franja
     reservas ..> notif : Dispara confirmación
     
     auth --> db
     reservas --> db
     motor --> db
+
+
+## 6. Design Quality Evaluation
+| Propiedad | Elemento | Evidencia del Diseño | Consecuencia / Justificación |
+|---|---|---|---|
+| **Cohesión (Alta)** | `MotorDisponibilidad` | Posee únicamente la responsabilidad de validación temporal y cruce de franjas, sin manejar bases de datos externas de usuarios. | Facilita el mantenimiento. Separa la lógica matemática y de horarios del gestor principal de la aplicación. |
+| **Acoplamiento (Alto - Hallazgo)** | `Gestión Reservas` | Tiene una dependencia sincrónica y directa con el componente `Servicio de Notificación`. | Si el servidor de correos falla, la reserva podría quedar bloqueada o lanzar timeout. **Mejora sugerida:** Implementar colas de eventos asíncronos a futuro. |
+| **Ocultamiento de información** | `Reserva` (Clase) | Atributos internos ocultos; los cambios del ciclo de vida se gestionan internamente mediante el método `confirmar()`. | Evita que componentes externos alteren arbitrariamente los estados en la base de datos eludiendo reglas de negocio. |
+
+## 7. Justified Decisions & ADRs
+
+**1. Decisión Arquitectónica: Uso de un API Gateway**
+* **Because [context]:** El sistema debe manejar múltiples peticiones garantizando tiempos de respuesta menores a 10 segundos (HU-002), y necesitamos un punto centralizado para gestionar las caídas de red o timeouts antes de que lleguen a la lógica core.
+* **We chose [decision]:** Introducir un componente `API_GW` como intermediario entre la `APP-WEB` y la Capa Lógica.
+* **Accepting [trade-off]:** El costo de mantener un componente de red adicional que agrega un ligero salto de latencia, a cambio de centralizar el enrutamiento seguro y la emisión de alertas tempranas de error de conexión.
+
+**2. Decisión de Diseño Detallado: Cálculo dinámico de disponibilidad**
+* **Because [context]:** El requerimiento REQ-02 exige mostrar el estado ("Disponible" u "Ocupado") exactamente al momento de realizar la búsqueda, lo cual representa un alto riesgo de desactualización si se maneja como un atributo estático en la tabla de espacios.
+* **We chose [decision]:** Delegar el cálculo del estado temporal al componente `Motor de disponibilidad y horarios`, el cual cruza en tiempo real el timestamp actual con las fechas de las reservas confirmadas en base de datos.
+* **Accepting [trade-off]:** El costo de realizar consultas relacionales (operaciones JOIN y BETWEEN) adicionales bajo demanda, a cambio de garantizar la precisión de la información de disponibilidad al segundo exacto de la búsqueda.
+
+**Reference:** `docs/decisions/ADR-001-calculo-disponibilidad-tiempo-real.md`
+
+## 8. Open Questions & Assumptions
+*   **Asunción (Datos Base):** Asumimos que las entidades base (Espacios con sus imágenes y ubicaciones) y los usuarios ya han sido inyectados en la base de datos mediante el componente `Gestión de espacios y elementos` (fuera del alcance de este MVP) o un proceso de migración, permitiéndonos centrar este diseño en el flujo de consulta y reserva del estudiante.
