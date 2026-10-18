@@ -86,13 +86,6 @@ INICIO consultarEstadoActual(espacioId)
         lanzar Excepcion("Fallo de conexión. No se pudo cargar el estado de disponibilidad.") // Manejado por API_GW
 FIN
 
-
-    reservas ..> motor : Usa para validar franja
-    reservas ..> notif : Dispara confirmación
-    
-    auth --> db
-    reservas --> db
-    motor --> db
 ```
 ## 6. Design Quality Evaluation
 | Propiedad | Elemento | Evidencia del Diseño | Consecuencia / Justificación |
