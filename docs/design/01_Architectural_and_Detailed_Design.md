@@ -93,8 +93,7 @@ FIN
     auth --> db
     reservas --> db
     motor --> db
-
-
+```
 ## 6. Design Quality Evaluation
 | Propiedad | Elemento | Evidencia del Diseño | Consecuencia / Justificación |
 |---|---|---|---|
@@ -118,3 +117,7 @@ FIN
 
 ## 8. Open Questions & Assumptions
 *   **Asunción (Datos Base):** Asumimos que las entidades base (Espacios con sus imágenes y ubicaciones) y los usuarios ya han sido inyectados en la base de datos mediante el componente `Gestión de espacios y elementos` (fuera del alcance de este MVP) o un proceso de migración, permitiéndonos centrar este diseño en el flujo de consulta y reserva del estudiante.
+
+
+
+
