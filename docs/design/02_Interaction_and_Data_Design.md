@@ -310,17 +310,9 @@ Datos de partida para todos los casos: el espacio `E1` (cancha, `gestionaDisponi
 > - **PA-7. Fallo parcial en la búsqueda.** Si los espacios se obtienen pero el cálculo de disponibilidad falla, el caso de uso detiene todo y muestra el *toast* (Excepción de REQ-02). ¿Sería preferible mostrar la lista sin estados? Este diseño sigue el caso de uso tal como está escrito.
 > - **PA-8. ¿El detalle de un espacio también debe mostrar su estado?** La "Prueba de filtros" de HU-002 menciona la selección desde el catálogo, y REQ-01 tiene la Open Question #3. El diagrama 1.2 no incluye el estado. Si se agrega, `obtenerDetalleEspacio` tendría que pasar por `Gestión Reservas` igual que en 1.1.
 
----
 
-## 6. Optional — AI-Assisted Design Reflection
 
-> **Recomendación de la IA (Claude, Anthropic):** reutilizar el script `DB_000.sql` de la rama `oariza` como modelo de datos de este entregable, porque ya existía y tenía restricciones bien construidas.
->
-> **Decisión: Modificar.** Se adoptaron sus decisiones técnicas que están respaldadas por un requerimiento: UUID, el dominio `@unal.edu.co` (DDR-04) y la exclusión con GiST contra cruces de franjas (RF-03 y RNF-03). Se descartaron sus reglas de negocio no aprobadas (horarios, duración y estados extra) y su alcance solo deportivo, que contradice REQ-01 ("canchas y laboratorios"). Esas reglas quedaron como PA-5. Adoptar el script completo habría convertido supuestos de implementación en requerimientos sin evidencia, algo que el curso prohíbe ("specification is not invention").
-
----
-
-## 7. Consistency Checklist
+## 6. Consistency Checklist
 
 - [x] Two use cases from the project, each traceable to a Use Case written in the requirements. *(1.1 → REQ-02 §4.3. 1.2 → REQ-01 §4.3.)*
 - [x] Each sequence diagram shows the main flow and at least one alternative or exception flow.
