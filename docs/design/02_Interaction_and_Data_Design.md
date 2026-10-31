@@ -28,6 +28,10 @@ Se seleccionan los dos casos de uso que el equipo ya especificó:
 ### 1.1 Consultar disponibilidad de espacios del campus — from requirement REQ-02
 
 ```mermaid
+---
+config:
+  theme: dark
+---
 sequenceDiagram
     actor EST as Estudiante
     participant APP as APP-WEB
@@ -36,43 +40,23 @@ sequenceDiagram
     participant GR as Gestión Reservas
     participant GE as Gestión de espacios
     participant MD as Motor de disponibilidad
-    participant RR as ReservaRepository
+    participant RR as ReservaRepositorio
 
-    EST->>APP: buscarEspacios(texto)
-    APP->>GW: consultarDisponibilidad(texto, token)
-    GW->>AUT: validarToken(token)
-    alt token inválido o vencido
-        AUT-->>GW: TokenInvalido
-        GW-->>APP: SesionNoValida
-        APP-->>EST: aviso de sesión no válida
-    else token válido
-        AUT-->>GW: identidad (usuarioId, rol)
-        GW->>GR: consultarEspaciosConEstado(texto)
-        GR->>GE: buscarEspacios(texto)
-        GE-->>GR: lista de EspacioResumen
-        alt ningún espacio coincide con la búsqueda
-            GR-->>GW: ResultadoBusqueda vacío
-            GW-->>APP: ResultadoBusqueda vacío
-            APP-->>EST: aviso de que no hay espacios para esa búsqueda
-        else hay uno o más espacios
-            GR->>GR: fijar instante = hora actual del servidor
-            GR->>MD: consultarEstados(espacios, instante)
-            MD->>RR: obtenerConfirmadasEnInstante(espacioIds, instante)
-            alt la base de datos responde
-                RR-->>MD: reservas CONFIRMADA que cubren el instante
-                MD-->>GR: EstadosDisponibilidad (un estado por espacio)
-                GR-->>GW: ResultadoBusqueda (espacio, estado, instante)
-                GW-->>APP: ResultadoBusqueda
-                APP-->>EST: cada espacio con Disponible, Ocupado o Disponibilidad no registrada
-            else la base de datos falla o se agota el tiempo de espera
-                RR-->>MD: ErrorDeRepositorio
-                MD-->>GR: ErrorDisponibilidad
-                GR-->>GW: ErrorDisponibilidad
-                GW-->>APP: ErrorServicio
-                APP-->>EST: toast Error de conexión. No se pudo cargar el estado de disponibilidad
-            end
-        end
-    end
+    EST->>APP: buscarEspacios(String texto)
+    APP->>GW: consultarDisponibilidad(String texto,Token tkn)
+    GW->>GW: validarToken(Token tkn) = <br> (UUID usuarioId, Rol rol)
+
+    GW->>GR: consultarEspaciosConEstado(String texto)
+    GR->>GE: buscarEspacios(String texto)
+    GE-->>GR: List<espacioResumen>
+    GR->>GR: calcularInstante() = <br> DateTime instante
+    GR->>MD: consultarEstadosConfirmados(List<espacio>, DateTime instante)
+    MD->>RR: obtenerReservasEnUnInstante(List<UUID espacioId>, DateTime instante)
+    RR-->>MD: List<Reserva>
+    MD-->>GR: List<Reserva> con Estado = DISPONIBLE
+    GR-->>GW: ResultadoBusqueda (espacio, estado, DateTime instante)
+    GW-->>APP: ResultadoBusqueda
+    APP-->>EST: cada espacio con Disponible, Ocupado o Disponibilidad no registrada
 ```
 
 | Use Case step or flow | Message(s) in the diagram | Information exchanged | Operation defined in (Deliverable 1) |
@@ -247,31 +231,168 @@ erDiagram
 **Interaction chosen** (diagrama 1.1, mensaje `consultarEstados` de `Gestión Reservas` a `Motor de disponibilidad`):
 > Es el punto donde se decide lo que promete el requerimiento capstone, es decir, qué estado ve el estudiante. También es donde la decisión del ADR (calcular en vez de guardar) se vuelve una operación verificable.
 
+## Contrato 1 — `buscarEspacios(texto)` (Estudiante → APP-WEB)
+ 
 | Element | Specification |
 |---|---|
-| **Operation and purpose** | `consultarEstados(espacios, instante)`: calcula, para cada espacio recibido, su estado de disponibilidad en un mismo instante, a partir de las reservas confirmadas |
-| **Input** (parameters and types) | `espacios`: lista no vacía de `EspacioRef { id: UUID, gestionaDisponibilidad: boolean }`, sin ids repetidos, tal como la entrega `GestionEspacios.buscarEspacios`. `instante`: `DateTime` con zona horaria, fijado por el llamador |
-| **Output** (successful result and data structure) | `EstadosDisponibilidad { instante: DateTime, estados: Map<UUID, EstadoDisponibilidad> }`, con exactamente una entrada por cada `id` de la entrada. `EstadoDisponibilidad` ∈ {`DISPONIBLE`, `OCUPADO`, `NO_REGISTRADO`} |
-| **Preconditions** (what the caller must satisfy before invoking) | El llamador (`Gestión Reservas`) obtuvo los espacios de `Gestión de espacios`, así que existen y están activos. La lista no está vacía y no tiene ids repetidos. `instante` no es nulo |
-| **Postconditions** (what is guaranteed on successful completion) | Para cada espacio: `NO_REGISTRADO` si `gestionaDisponibilidad = false`. Si no, `OCUPADO` si y solo si existe una `RESERVA` con `estado = CONFIRMADA` y `fecha_inicio <= instante < fecha_fin`. En los demás casos, `DISPONIBLE`. Todos los estados corresponden al mismo `instante`, que se devuelve en la salida |
-| **Failure outcomes** (each failure, and what state is left after it) | `EntradaInvalida`: lista vacía, ids repetidos o `instante` nulo. No se consulta el repositorio. `ErrorDisponibilidad`: el repositorio falla o se agota el tiempo de espera. No se devuelven resultados parciales, de modo que el estudiante nunca ve una mezcla de estados calculados y faltantes. Se registra el fallo en el log. En todos los casos ninguna reserva ni ningún espacio cambia |
-| **Invariants and side effects** (what must stay true, what may change) | Operación de solo lectura: no crea, modifica ni guarda reservas, espacios ni estados, y no usa caché (ADR de disponibilidad, decisión B3). Es idempotente: con el mismo `instante` y las mismas reservas devuelve el mismo resultado. Hace como máximo una consulta al repositorio por invocación, cualquiera que sea el número de espacios (ninguna si todos tienen `gestionaDisponibilidad = false`). Único efecto lateral: una entrada de log cuando ocurre `ErrorDisponibilidad` |
-
-**Testable examples**
-
-Datos de partida para todos los casos: el espacio `E1` (cancha, `gestionaDisponibilidad = true`) tiene una reserva `R1` `CONFIRMADA` de 10:00 a 12:00 del 2026-10-27 (hora de Bogotá). El espacio `E2` (laboratorio, `gestionaDisponibilidad = true`) tiene una reserva `R2` `CANCELADA` de 10:00 a 12:00 del mismo día. El espacio `E3` tiene `gestionaDisponibilidad = false`.
-
-| Case | Before | Request | Expected |
-|---|---|---|---|
-| Dentro de una reserva confirmada | Datos de partida | `consultarEstados([E1], 2026-10-27 11:00)` | `E1 → OCUPADO` |
-| Justo al inicio de la franja | Datos de partida | `consultarEstados([E1], 2026-10-27 10:00)` | `E1 → OCUPADO` (el inicio está incluido) |
-| Justo al final de la franja | Datos de partida | `consultarEstados([E1], 2026-10-27 12:00)` | `E1 → DISPONIBLE` (el fin está excluido) |
-| Reserva cancelada | Datos de partida | `consultarEstados([E2], 2026-10-27 11:00)` | `E2 → DISPONIBLE` |
-| Varios espacios en una búsqueda (Escenario 3) | Datos de partida | `consultarEstados([E1, E2, E3], 2026-10-27 11:00)` | `E1 → OCUPADO`, `E2 → DISPONIBLE`, `E3 → NO_REGISTRADO`, todos con `instante = 11:00` |
-| Lista vacía | Datos de partida | `consultarEstados([], 2026-10-27 11:00)` | `EntradaInvalida`. No se consulta el repositorio |
-| Base de datos caída | El repositorio no responde | `consultarEstados([E1, E2], 2026-10-27 11:00)` | `ErrorDisponibilidad`, sin estados parciales. `R1` y `R2` sin cambios |
-
+| **Operation and purpose** | Acción del estudiante: pedir la lista de espacios del campus con el estado de disponibilidad de cada uno, al momento de la búsqueda |
+| **Input** | `texto`: `String`. Puede ir vacío (S-4: texto vacío = todo el catálogo activo). No hay longitud máxima definida en los requerimientos |
+| **Output** | Una pantalla de resultados con cada espacio y su estado: "Disponible", "Ocupado" o "Disponibilidad no registrada". Si la búsqueda no encuentra espacios: sin lista (el texto del aviso es PA-3) |
+| **Preconditions** | El estudiante está en la aplicación con conexión de red y con una sesión iniciada (S-1). La `APP-WEB` tiene un token disponible |
+| **Postconditions** | La `APP-WEB` invocó `consultarDisponibilidad` exactamente una vez, con el mismo `texto` y el token de la sesión. Cada espacio mostrado tiene exactamente un estado, y todos corresponden a un mismo instante (S-6). Los textos de interfaz los decide la `APP-WEB` (S-3) |
+| **Failure outcomes** | Respuesta `ErrorServicio` → toast "Error de conexión. No se pudo cargar el estado de disponibilidad. Revisa tu conexión a internet e inténtalo nuevamente." (REQ-02, Escenario 5). Respuesta `SesionNoValida` → aviso de sesión no válida (qué ocurre después es PA-6). En ambos casos no se muestra ninguna lista parcial |
+| **Invariants and side effects** | No guarda nada y no cambia ninguna reserva ni espacio. Repetir la búsqueda es seguro |
+ 
 ---
+ 
+## Contrato 2 — `consultarDisponibilidad(texto, token)` (APP-WEB → API_GW)
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Punto de entrada del backend para la búsqueda con estados: verifica la identidad y enruta la petición a `Gestión Reservas`, controlando fallos y tiempos de espera (DDR-03, DDR-04) |
+| **Input** | `texto`: `String`, puede estar vacío. `token`: token JWT de la sesión, no vacío |
+| **Output** | `ResultadoBusqueda { instante: DateTime, resultados: List<(EspacioResumen, EstadoDisponibilidad)> }`, tal como lo entregó `Gestión Reservas`, sin modificarlo |
+| **Preconditions** | El token está presente en la petición. El `texto` no es nulo |
+| **Postconditions** | Si responde con éxito: el token fue validado (Contrato 3) y el resultado viene de `consultarEspaciosConEstado` (Contrato 4). `usuarioId` y `rol` salen del token validado y nunca los envía el cliente. La respuesta llega en menos de 10 s (S-2, DDR-03) |
+| **Failure outcomes** | `SesionNoValida`: el token es inválido o venció. No se llama a `Gestión Reservas`. `ErrorServicio`: `ErrorDisponibilidad`, `ErrorConsulta` o agotamiento de los 10 s, traducidos por el Gateway. No se devuelve ningún resultado parcial. En ningún caso cambia el estado del sistema |
+| **Invariants and side effects** | Solo lectura e idempotente. El Gateway no guarda estado de sesión (2.1: el JWT es autocontenido). Único efecto lateral posible: registro del error en el log |
+ 
+**Testable examples**
+ 
+| Case | Request | Expected |
+|---|---|---|
+| Token válido, hay espacios | `consultarDisponibilidad("cancha", tokenValido)` | `ResultadoBusqueda` con los espacios que coinciden |
+| Token vencido | `consultarDisponibilidad("cancha", tokenVencido)` | `SesionNoValida`. No se llama a `Gestión Reservas` |
+| Falla la base de datos | `consultarDisponibilidad("cancha", tokenValido)` con el repositorio caído | `ErrorServicio` |
+| No hay respuesta en 10 s | La capa lógica no responde | `ErrorServicio` |
+ 
+---
+ 
+## Contrato 3 — `validarToken(token)` (método interno de API_GW)
+ 
+> `validarToken` es un método privado de la clase `ApiGateway`, no una operación de otro módulo. Solo la invoca el propio Gateway, antes de enrutar cada petición. No es una interfaz entre componentes: este contrato describe su comportamiento interno para poder probarlo.
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Comprobar que el token es auténtico y no ha vencido, y entregar la identidad que contiene (`usuarioId`, `rol`) |
+| **Input** | `token`: token JWT, no nulo |
+| **Output** | `Identidad { usuarioId: UUID, rol: Rol }`, con `rol` ∈ {`ESTUDIANTE`, `ADMINISTRATIVO`, `SUPERADMIN`} |
+| **Preconditions** | `token` no es nulo |
+| **Postconditions** | Si devuelve identidad: la firma del token es válida y no ha vencido. `usuarioId` y `rol` son los que contiene el token |
+| **Failure outcomes** | `TokenInvalido`: token ausente, mal formado, con firma inválida o vencido. No se devuelve identidad. No cambia ningún dato |
+| **Invariants and side effects** | Solo lectura. No llama a otros componentes ni consulta la base de datos: usa solo el contenido del token (2.1: el JWT es autocontenido, sin tabla de sesiones). Repetir la llamada con el mismo token da el mismo resultado mientras no venza |
+ 
+**Testable examples**
+ 
+| Case | Request | Expected |
+|---|---|---|
+| Token válido de estudiante | `validarToken(t1)` | `(usuarioId, ESTUDIANTE)` |
+| Token vencido | `validarToken(t2)` | `TokenInvalido` |
+| Firma alterada | `validarToken(t3)` | `TokenInvalido` |
+ 
+---
+ 
+## Contrato 4 — `consultarEspaciosConEstado(texto)` (API_GW → Gestión Reservas)
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Orquestar la búsqueda: obtener los espacios que coinciden con el texto y calcular el estado de cada uno en un mismo instante |
+| **Input** | `texto`: `String`, puede estar vacío (S-4) |
+| **Output** | `ResultadoBusqueda { instante: DateTime, resultados: List<(EspacioResumen, EstadoDisponibilidad)> }` |
+| **Preconditions** | El llamador (`API_GW`) ya validó el token. `texto` no es nulo |
+| **Postconditions** | Cada espacio activo que coincide con `texto` aparece exactamente una vez con exactamente un estado. Todos los estados se calcularon con el mismo `instante`, fijado una sola vez (S-6). Se invoca al Motor una sola vez por búsqueda, no una vez por espacio. Si ningún espacio coincide: lista vacía y no se invoca al Motor (comportamiento del diagrama v1.0; el diagrama nuevo no lo muestra, ver I-6 y PA-3) |
+| **Failure outcomes** | `ErrorConsulta`: falla la lectura de espacios (Contrato 5). `ErrorDisponibilidad`: falla el cálculo de estados (Contratos 7 y 8). En ambos casos no se devuelve ningún resultado parcial (PA-7) y nada cambia en los datos |
+| **Invariants and side effects** | Solo lectura e idempotente respecto de los datos. No usa caché (decisión B3). No crea ni cambia reservas |
+ 
+**Testable examples** (datos de partida: los de la Sección 3 del Entregable 2)
+ 
+| Case | Request | Expected |
+|---|---|---|
+| Varios espacios, estados distintos | `consultarEspaciosConEstado("")` a las 11:00 del 2026-10-27 | `E1 → OCUPADO`, `E2 → DISPONIBLE`, `E3 → NO_REGISTRADO`, todos con `instante = 11:00` |
+| Ningún espacio coincide | `consultarEspaciosConEstado("xyz")` | Lista vacía. El Motor no se invoca |
+| Falla el cálculo | El repositorio de reservas no responde | `ErrorDisponibilidad`, sin lista parcial |
+ 
+---
+ 
+## Contrato 5 — `buscarEspacios(texto)` (Gestión Reservas → Gestión de espacios)
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Entregar los espacios activos del catálogo que coinciden con el texto buscado |
+| **Input** | `texto`: `String`, puede estar vacío |
+| **Output** | `List<EspacioResumen>`. Cada `EspacioResumen` trae al menos: `id`, `nombre`, `tipo`, `edificio` y `gestionaDisponibilidad` (los datos que pasan al Motor y al estudiante) |
+| **Preconditions** | `texto` no es nulo |
+| **Postconditions** | Solo contiene espacios con `activo = true`. Sin `id` repetidos. El filtro es sobre el nombre del espacio (S-4). Con texto vacío devuelve todo el catálogo activo. Sin coincidencias devuelve lista vacía, que no es un error. El orden de la lista no está definido por los requerimientos |
+| **Failure outcomes** | `ErrorConsulta`: el repositorio falla o se agota el tiempo de espera. No se devuelve una lista parcial |
+| **Invariants and side effects** | Solo lectura. `Gestión de espacios` es el único dueño de `ESPACIO` y accede a los datos por `EspacioRepositorio.buscarActivosPorTexto` (esa llamada no se muestra en el diagrama nuevo) |
+ 
+**Testable examples**
+ 
+| Case | Request | Expected |
+|---|---|---|
+| Coincidencia | `buscarEspacios("cancha")` | Los espacios activos cuyo nombre coincide |
+| Texto vacío | `buscarEspacios("")` | Todos los espacios activos |
+| Espacio retirado | `buscarEspacios("Lab 3")` con `Lab 3.activo = false` | No aparece |
+| Sin coincidencias | `buscarEspacios("xyz")` | Lista vacía |
+ 
+---
+ 
+## Contrato 6 — `calcularInstante()` (Gestión Reservas, operación interna)
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Fijar el momento exacto de la búsqueda para que todos los espacios del resultado se evalúen en el mismo instante (S-6, ADR de cálculo en tiempo real) |
+| **Input** | Ninguna |
+| **Output** | `DateTime` con zona horaria: la hora actual del servidor |
+| **Preconditions** | Ninguna |
+| **Postconditions** | El valor es la hora del reloj del servidor en el momento de la llamada, no una hora enviada por el cliente. Se llama una vez por búsqueda y ese mismo valor se pasa al Motor y se devuelve en `ResultadoBusqueda` |
+| **Failure outcomes** | Ninguno previsto |
+| **Invariants and side effects** | No modifica datos. No es determinista, porque depende del reloj; para probarla hay que poder reemplazar el reloj (ver I-10) |
+ 
+**Testable example:** con el reloj del servidor fijado en 2026-10-27 11:00 (hora de Bogotá), `calcularInstante()` devuelve 2026-10-27 11:00 -05:00.
+ 
+---
+ 
+## Contrato 7 — `consultarEstados(espacios, instante)` (Gestión Reservas → Motor de disponibilidad)
+ 
+> Es el mismo contrato de la Sección 3 del Entregable 2. Se repite aquí para que la lista esté completa. Solo cambia el nombre del tipo de entrada: `EspacioResumen` en lugar de `EspacioRef` (ver I-4). El diagrama de secuencias lo llama `consultarEstadosConfirmados` (I-2).
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Calcular, para cada espacio recibido, su estado de disponibilidad en un mismo instante, a partir de las reservas confirmadas |
+| **Input** | `espacios`: `List<EspacioResumen>` no vacía y sin ids repetidos, como la entrega `buscarEspacios` (con `id` y `gestionaDisponibilidad`). `instante`: `DateTime` con zona horaria, fijado por el llamador |
+| **Output** | `EstadosDisponibilidad { instante: DateTime, estados: Map<UUID, EstadoDisponibilidad> }`, con una entrada por cada `id` recibido. `EstadoDisponibilidad` ∈ {`DISPONIBLE`, `OCUPADO`, `NO_REGISTRADO`} |
+| **Preconditions** | Los espacios existen y están activos, porque vienen de `Gestión de espacios`. La lista no está vacía ni tiene ids repetidos. `instante` no es nulo |
+| **Postconditions** | `NO_REGISTRADO` si `gestionaDisponibilidad = false`. Si no, `OCUPADO` si y solo si existe una reserva `CONFIRMADA` con `fechaInicio <= instante < fechaFin`. En los demás casos, `DISPONIBLE`. El `instante` devuelto es el recibido |
+| **Failure outcomes** | `EntradaInvalida`: lista vacía, ids repetidos o `instante` nulo; no se consulta el repositorio. `ErrorDisponibilidad`: falla `obtenerConfirmadasEnInstante`; no se devuelven estados parciales y se registra en el log |
+| **Invariants and side effects** | Solo lectura. Sin caché. Como máximo una consulta al repositorio por invocación, y ninguna si todos los espacios tienen `gestionaDisponibilidad = false`. Idempotente para los mismos datos e `instante` |
+ 
+**Testable examples:** son los siete de la Sección 3 del Entregable 2.
+ 
+---
+ 
+## Contrato 8 — `obtenerConfirmadasEnInstante(espacioIds, instante)` (Motor → ReservaRepositorio)
+ 
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | Leer, en una sola consulta, las reservas confirmadas que cubren un instante para un conjunto de espacios |
+| **Input** | `espacioIds`: `List<UUID>` no vacía, sin repetidos y solo con espacios que gestionan disponibilidad. `instante`: `DateTime` con zona horaria |
+| **Output** | `List<Reserva>`, vacía si ningún espacio de la lista está ocupado |
+| **Preconditions** | `espacioIds` no está vacía (el Motor no llama si no hay espacios gestionados). `instante` no es nulo |
+| **Postconditions** | Cada reserva devuelta cumple `estado = CONFIRMADA` y `fechaInicio <= instante < fechaFin`, y su `espacioId` está en `espacioIds`. Hay como máximo una por espacio, por la restricción de exclusión (Sección 2.4). Las reservas `PENDIENTE` y `CANCELADA` no se devuelven |
+| **Failure outcomes** | `ErrorDeRepositorio`: falla la base de datos o se agota el tiempo de espera. No se devuelve una lista parcial |
+| **Invariants and side effects** | Solo lectura. Se apoya en el índice `(espacio_id, estado, fecha_inicio, fecha_fin)` (DDR-03). No guarda ni cambia datos |
+ 
+**Testable examples** (datos de la Sección 3)
+ 
+| Case | Request | Expected |
+|---|---|---|
+| Dentro de la franja | `obtenerConfirmadasEnInstante([E1, E2], 11:00)` | `[R1]` (`R2` está cancelada) |
+| Justo al final | `obtenerConfirmadasEnInstante([E1], 12:00)` | `[]` |
+| Base caída | cualquier solicitud | `ErrorDeRepositorio` |
+ 
+---
+
 
 ## 4. Cross-Consistency & Changes to Deliverable 1
 
