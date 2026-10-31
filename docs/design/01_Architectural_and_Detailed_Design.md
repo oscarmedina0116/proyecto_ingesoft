@@ -45,7 +45,117 @@ El Gateway enruta las peticiones hacia componentes cohesivos de la Capa Lógica.
 
 Se seleccionan los componentes `Gestión Reservas` y `Motor de disponibilidad y horarios` porque concentran el alcance funcional principal: búsquedas y estados. Para que la consulta sea completa se agrega la interfaz pública de `Gestión de espacios` y los repositorios que separan la lógica del acceso a datos. El módulo de *Políticas* y la administración de espacios quedan fuera de este nivel de detalle para centrarse en el MVP. Por directriz docente, el diagrama se adjunta como imagen; su fuente Mermaid está en `docs/design/diagrams/02_class_diagram.mmd`.
 
-![Diagrama de Clases Detallado](./diagrams/02_class_diagram.jpg)
+
+```mermaid
+---
+config:
+  theme: redux-dark
+---
+classDiagram
+direction TB
+    class Espacio {
+	    +UUID id
+	    +String nombre
+	    +String tipo
+	    +String caracteristicas
+	    +Integer capacidad
+	    +String edificio
+	    +String ubicacionRelativa
+	    +String imagenUrl
+	    +boolean gestionaDisponibilidad
+	    +boolean activo
+    }
+
+    class Reserva {
+	    +UUID id
+	    +UUID usuarioId
+	    +UUID espacioId
+	    +DateTime fechaInicio
+	    +DateTime fechaFin
+	    -EstadoReserva estado
+	    +confirmar()
+    }
+
+    class GestionEspacios {
+	    -EspacioRepositorio espacioRepositorio
+	    +buscarEspacios(texto: String) List~EspacioResumen~
+	    +obtenerDetalle(espacioId: UUID) DetalleEspacio
+    }
+
+    class GestionReservas {
+	    -MotorDisponibilidad motor
+	    -GestionEspacios gestionEspacios
+	    -ReservaRepositorio reservaRepositorio
+	    -ServicioNotificacion notificador
+	    +crearReserva(usuarioId: UUID, espacioId: UUID, inicio: DateTime, fin: DateTime) Reserva
+	    +consultarEspaciosConEstado(texto: String)ResultadoBusqueda
+        +calcularInstante() DateTime instante
+    }
+
+    class MotorDisponibilidad {
+	    -ReservaRepositorio reservaRepositorio
+	    +validarFranja(espacioId: UUID, inicio: DateTime, fin: DateTime) boolean
+	    +consultarEstados(espacios: List~Espacio~, instante: DateTime) EstadosDisponibilidad
+    }
+
+    class EspacioRepositorio {
+	    +buscarActivosPorTexto(texto: String) List~Espacio~
+	    +buscarActivoPorId(espacioId: UUID) Espacio
+    }
+
+    class ReservaRepositorio {
+	    +guardar(reserva: Reserva) Reserva
+	    +obtenerConfirmadasEnInstante(espacioIds: List~UUID~, instante: DateTime) List~Reserva~
+	    +existeCruce(espacioId: UUID, inicio: DateTime, fin: DateTime) boolean
+    }
+
+    class ServicioNotificacion {
+	    +enviarConfirmacion(reserva: Reserva) void
+    }
+
+    class EstadoDisponibilidad {
+	    DISPONIBLE
+	    OCUPADO
+	    NO_REGISTRADO
+    }
+
+    class EstadoReserva {
+	    PENDIENTE
+	    CONFIRMADA
+	    CANCELADA
+    }
+
+    class Rol {
+	    ESTUDIANTE
+	    ADMINISTRATIVO
+	    SUPERADMIN
+    }
+
+    class Usuario {
+	    +UUID id
+	    +String correoUnal
+	    +Rol rol
+    }
+
+	<<interface>> EspacioRepositorio
+	<<interface>> ReservaRepositorio
+	<<enumeration>> EstadoDisponibilidad
+	<<enumeration>> EstadoReserva
+	<<enumeration>> Rol
+
+    Usuario "1" --> "*" Reserva : realiza
+    Espacio "1" --> "*" Reserva : tiene
+    GestionReservas --> Reserva : gestiona
+    GestionReservas ..> MotorDisponibilidad : depende de
+    GestionReservas ..> GestionEspacios : consulta espacios
+    GestionReservas ..> ServicioNotificacion : notifica sin bloquear
+    GestionReservas ..> ReservaRepositorio : persiste
+    MotorDisponibilidad ..> ReservaRepositorio : lee
+    MotorDisponibilidad ..> EstadoDisponibilidad : retorna
+    GestionEspacios ..> EspacioRepositorio : lee
+    Reserva --> EstadoReserva
+    Usuario --> Rol
+```
 
 **Elementos representados en el diseño:**
 *   **Entidades base:** `Usuario` (id, correoUnal, rol) y `Espacio` (id, nombre, tipo, caracteristicas, capacidad, edificio, ubicacionRelativa, imagenUrl, gestionaDisponibilidad, activo).
