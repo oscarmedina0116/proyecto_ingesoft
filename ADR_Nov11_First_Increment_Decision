@@ -1,0 +1,16 @@
+#  Cual es la primer incremento a implementar?
+Hemos decidido un Vertical Slice, ya que la conexion con el SSO de Google para la verificacion del usuario no es suficiente.
+Se realizará en local para posteriormente implementarla en el ambiente brindado por el docente.
+
+# Qué convenciones de nombramiento usaremos?
+ - Clases
+ - Metodos
+ - Variables
+ - Archivos
+ - Carpetas
+
+#Acuerdo de Documentacion para los metodos:
+Identificar qué hace el metodo, qué parametros recibe y qué retorna
+
+
+# Tipo de Licensia de Software en el Readme
