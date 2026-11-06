@@ -13,8 +13,11 @@ Se realizará en local para posteriormente implementarla en el ambiente brindado
 | Archivos | kebab-case o igual que la clase | `user-service.ts`, `UserService.java` |
 | Carpetas | kebab-case o minúsculas | `user-management/`, `utils/` |
 
-#Acuerdo de Documentacion para los metodos:
+# Acuerdo de Documentacion para los metodos:
+_TODO:_
 Identificar qué hace el metodo, qué parametros recibe y qué retorna
 
 
-# Tipo de Licensia de Software en el Readme
+# Tipo de Licencia de Software en el Readme
+  _TODO: Añadirlo al REAMDE.mc_
+  
