@@ -3,11 +3,15 @@ Hemos decidido un Vertical Slice, ya que la conexion con el SSO de Google para l
 Se realizará en local para posteriormente implementarla en el ambiente brindado por el docente.
 
 # Qué convenciones de nombramiento usaremos?
- - Clases
- - Metodos
- - Variables
- - Archivos
- - Carpetas
+
+| Elemento | Convención | Ejemplo |
+| --- | --- | --- |
+| Clases | PascalCase, sustantivos | `UserService`, `OrderRepository` |
+| Métodos | camelCase, empiezan con verbo | `getUserById()`, `calculateTotal()` |
+| Variables | camelCase, descriptivas | `userName`, `isActive`, `totalPrice` |
+| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`, `API_BASE_URL` |
+| Archivos | kebab-case o igual que la clase | `user-service.ts`, `UserService.java` |
+| Carpetas | kebab-case o minúsculas | `user-management/`, `utils/` |
 
 #Acuerdo de Documentacion para los metodos:
 Identificar qué hace el metodo, qué parametros recibe y qué retorna
