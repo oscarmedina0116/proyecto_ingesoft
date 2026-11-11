@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: unal_space_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-unal_space}
+      TZ: America/Bogota
+      PGTZ: America/Bogota
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - unal_space_pgdata:/var/lib/postgresql/data
+      - ./DB-UnalSpace.sql:/docker-entrypoint-initdb.d/01-init-unal-space.sql:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "timezone=America/Bogota"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-unal_space}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  unal_space_pgdata:
+    name: unal_space_pgdata
+

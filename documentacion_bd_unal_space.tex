@@ -1,0 +1,918 @@
+% ============================================================================
+% UNAL SPACE — Documentación Técnica de la Base de Datos
+% Módulo de Espacios Deportivos · Sede Bogotá
+% Para compilar en Overleaf con pdfLaTeX o XeLaTeX
+% ============================================================================
+\documentclass[12pt, a4paper]{article}
+
+% ── Paquetes ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{shapes.multipart, arrows.meta, positioning, calc, fit}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{amsmath}
+
+% ── Colores institucionales UNAL ────────────────────────────────────────────
+\definecolor{unalverde}{HTML}{006633}
+\definecolor{unalgris}{HTML}{4D4D4D}
+\definecolor{unalclaro}{HTML}{E8F5E9}
+\definecolor{sqlblue}{HTML}{1565C0}
+\definecolor{sqlgreen}{HTML}{2E7D32}
+\definecolor{sqlred}{HTML}{C62828}
+\definecolor{sqlorange}{HTML}{E65100}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{codeframe}{HTML}{BDBDBD}
+
+% ── Configuración de listings para SQL ──────────────────────────────────────
+\lstdefinestyle{sqlstyle}{
+    language=SQL,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{sqlblue}\bfseries,
+    stringstyle=\color{sqlred},
+    commentstyle=\color{sqlgreen}\itshape,
+    morekeywords={ENUM, UUID, TIMESTAMPTZ, TSTZRANGE, BOOLEAN, VARCHAR, TEXT,
+                  SERIAL, GENERATED, ALWAYS, STORED, EXCLUDE, USING, gist,
+                  ISODOW, EPOCH, STABLE, LATERAL, EXTENSION, CONFLICT,
+                  NOTHING, RESTRICT, CASCADE, BEFORE, AFTER, EACH, ROW,
+                  EXECUTE, FUNCTION, TRIGGER, RETURNS, LANGUAGE, plpgsql,
+                  DECLARE, BEGIN, END, IF, ELSIF, THEN, RAISE, EXCEPTION,
+                  INTO, NEW, OLD, TG_OP, RETURN, INTERVAL, ZONE, TIME,
+                  WITH, OVER, PARTITION, RANK, NULLIF, COALESCE, DISTINCT,
+                  tstzrange, generate_series, uuid_generate_v4, NOW, EXTRACT,
+                  AT, BETWEEN},
+    morecomment=[l]{--},
+    morestring=[b]',
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    frame=single,
+    rulecolor=\color{codeframe},
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+    xleftmargin=15pt,
+    framexleftmargin=15pt,
+    aboveskip=12pt,
+    belowskip=8pt,
+}
+\lstset{style=sqlstyle}
+
+% ── Encabezados y pies de página ────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textcolor{unalgris}{UNAL Space --- Documentación de Base de Datos}}
+\fancyhead[R]{\footnotesize\textcolor{unalgris}{Universidad Nacional de Colombia}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.2pt}
+
+% ── Formato de secciones ────────────────────────────────────────────────────
+\titleformat{\section}
+    {\Large\bfseries\color{unalverde}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}
+    {\large\bfseries\color{unalgris}}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}
+    {\normalsize\bfseries\color{unalgris}}{\thesubsubsection.}{0.5em}{}
+
+% ── Hyperref ────────────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=unalverde,
+    urlcolor=sqlblue,
+    citecolor=unalverde,
+    pdftitle={UNAL Space - Documentación de Base de Datos},
+    pdfauthor={Ingeniería de Software - UNAL},
+}
+
+% ── Macros ──────────────────────────────────────────────────────────────────
+\newcommand{\pk}{\texttt{PK}}
+\newcommand{\fk}{\texttt{FK}}
+\newcommand{\uq}{\texttt{UQ}}
+\newcommand{\nn}{\texttt{NN}}
+\newcommand{\chk}{\texttt{CK}}
+\newcommand{\tname}[1]{\texttt{\textbf{#1}}}
+\newcommand{\cname}[1]{\texttt{#1}}
+
+% ════════════════════════════════════════════════════════════════════════════
+%                           INICIO DEL DOCUMENTO
+% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Portada ─────────────────────────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\Huge\bfseries\textcolor{unalverde}{UNAL Space}\par}
+    \vspace{0.5cm}
+    {\LARGE Plataforma de Reservas de Espacios Deportivos\par}
+    \vspace{0.3cm}
+    {\large Universidad Nacional de Colombia --- Sede Bogotá\par}
+
+    \vspace{2cm}
+
+    \rule{\textwidth}{1pt}
+    \vspace{0.5cm}
+    {\Large\bfseries Documentación Técnica de la Base de Datos\par}
+    \vspace{0.2cm}
+    {\large Módulo de Espacios Deportivos\par}
+    \vspace{0.5cm}
+    \rule{\textwidth}{1pt}
+
+    \vspace{2cm}
+
+    \begin{tabular}{ll}
+        \textbf{Motor de BD:}      & PostgreSQL 16+ \\
+        \textbf{Zona horaria:}     & America/Bogota (UTC-5) \\
+        \textbf{Base de datos:}    & \texttt{unal\_space} \\
+        \textbf{Herramienta IDE:}  & JetBrains DataGrip \\
+        \textbf{Versión del documento:} & 1.0 \\
+    \end{tabular}
+
+    \vfill
+    {\large Ingeniería de Software\par}
+    {\large Facultad de Ingeniería\par}
+    {\large\the\year\par}
+\end{titlepage}
+
+% ── Tabla de contenido ──────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Introducción}
+% ════════════════════════════════════════════════════════════════════════════
+
+El presente documento describe en detalle el diseño, la estructura y la implementación de la base de datos relacional del módulo de \textbf{Espacios Deportivos} de la plataforma \textbf{UNAL Space}, desarrollada para la Universidad Nacional de Colombia, Sede Bogotá.
+
+El sistema permite a los estudiantes de la universidad reservar espacios deportivos del campus (canchas, estadio, escenarios) de forma controlada, garantizando:
+
+\begin{itemize}[leftmargin=2em]
+    \item Autenticación mediante correo institucional (\texttt{@unal.edu.co}).
+    \item Cumplimiento de horarios de servicio (lunes a viernes, 06:00--21:00).
+    \item Control de duración de reservas (mínimo 1 hora, máximo 2 horas).
+    \item Prevención absoluta de solapamientos mediante restricciones ACID a nivel de motor.
+    \item Trazabilidad completa a través de auditoría automatizada.
+\end{itemize}
+
+\subsection{Tecnologías utilizadas}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{10cm}}
+    \toprule
+    \textbf{Componente} & \textbf{Tecnología} \\
+    \midrule
+    Motor de BD & PostgreSQL 16+ \\
+    Extensiones & \texttt{uuid-ossp} (generación de UUID v4), \texttt{btree\_gist} (índices GiST para exclusión de rangos) \\
+    Tipos de dato & UUID, TIMESTAMPTZ, TSTZRANGE, ENUM personalizados \\
+    IDE de BD & JetBrains DataGrip \\
+    Zona horaria & \texttt{America/Bogota} (UTC-5) \\
+    \bottomrule
+\end{tabular}
+\caption{Stack tecnológico de la base de datos.}
+\end{table}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Tipos Enumerados (ENUM)}
+% ════════════════════════════════════════════════════════════════════════════
+
+Se definen cuatro tipos enumerados que restringen los valores posibles en columnas clave, garantizando integridad de dominio a nivel de motor:
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{l l X}
+    \toprule
+    \textbf{Tipo ENUM} & \textbf{Valores} & \textbf{Descripción} \\
+    \midrule
+    \texttt{tipo\_espacio} &
+        \texttt{ESTADIO}, \texttt{CONCHA\_ACUSTICA}, \texttt{CANCHA\_TECHADA}, \texttt{CANCHA\_DESTECHADA}, \texttt{CANCHA\_TENIS} &
+        Clasificación física del escenario deportivo. \\
+    \addlinespace
+    \texttt{tipo\_superficie} &
+        \texttt{GRAMA\_NATURAL}, \texttt{GRAMA\_SINTETICA}, \texttt{CEMENTO}, \texttt{CAUCHO\_SINTETICO}, \texttt{POLVO\_DE\_LADRILLO}, \texttt{BALDOSA\_DEPORTIVA} &
+        Material de la superficie de juego. \\
+    \addlinespace
+    \texttt{deporte\_permitido} &
+        \texttt{FUTBOL\_11}, \texttt{FUTBOL\_SALA}, \texttt{BALONCESTO}, \texttt{VOLEIBOL}, \texttt{TENIS} &
+        Disciplinas deportivas disponibles en el campus. \\
+    \addlinespace
+    \texttt{estado\_reserva} &
+        \texttt{PENDIENTE}, \texttt{CONFIRMADA}, \texttt{CANCELADA}, \texttt{FINALIZADA}, \texttt{NO\_SHOW} &
+        Ciclo de vida de una reserva. \\
+    \bottomrule
+\end{tabularx}
+\caption{Tipos enumerados definidos en la base de datos.}
+\end{table}
+
+\begin{lstlisting}[caption={Definición de tipos enumerados en SQL.}]
+CREATE TYPE tipo_espacio AS ENUM (
+    'ESTADIO', 'CONCHA_ACUSTICA', 'CANCHA_TECHADA',
+    'CANCHA_DESTECHADA', 'CANCHA_TENIS'
+);
+
+CREATE TYPE tipo_superficie AS ENUM (
+    'GRAMA_NATURAL', 'GRAMA_SINTETICA', 'CEMENTO',
+    'CAUCHO_SINTETICO', 'POLVO_DE_LADRILLO', 'BALDOSA_DEPORTIVA'
+);
+
+CREATE TYPE deporte_permitido AS ENUM (
+    'FUTBOL_11', 'FUTBOL_SALA', 'BALONCESTO', 'VOLEIBOL', 'TENIS'
+);
+
+CREATE TYPE estado_reserva AS ENUM (
+    'PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'FINALIZADA', 'NO_SHOW'
+);
+\end{lstlisting}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Modelo Entidad--Relación}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Diagrama ER}
+
+La Figura~\ref{fig:er-diagram} presenta el modelo entidad--relación completo del módulo deportivo. Las relaciones se describen con notación de cardinalidad UML.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    entity/.style={
+        rectangle split,
+        rectangle split parts=2,
+        draw=unalverde,
+        thick,
+        fill=unalclaro,
+        text width=5.5cm,
+        font=\small,
+        align=left,
+        inner sep=6pt,
+        rounded corners=3pt
+    },
+    relationship/.style={
+        diamond,
+        draw=sqlorange,
+        thick,
+        fill=sqlorange!10,
+        aspect=2.5,
+        font=\small\bfseries,
+        inner sep=2pt,
+    },
+    arrow/.style={
+        -Stealth,
+        thick,
+        color=unalgris,
+    },
+    cardinality/.style={
+        font=\footnotesize\bfseries,
+        color=sqlblue,
+    },
+]
+
+% ── Entidades ──
+\node[entity] (usuarios) {
+    \textbf{usuarios}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    nombres : VARCHAR(100) \\
+    apellidos : VARCHAR(100) \\
+    documento : VARCHAR(20) [UQ] \\
+    codigo\_estudiantil : VARCHAR(20) [UQ] \\
+    correo : VARCHAR(150) [UQ] \\
+    facultad : VARCHAR(120) \\
+    activo : BOOLEAN
+};
+
+\node[entity, right=4.5cm of usuarios] (reservas) {
+    \textbf{reservas}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    usuario\_id : UUID (FK) \\
+    espacio\_id : UUID (FK) \\
+    disciplina\_id : UUID (FK) \\
+    fecha\_inicio : TIMESTAMPTZ \\
+    fecha\_fin : TIMESTAMPTZ \\
+    rango\_horario : TSTZRANGE \\
+    estado : estado\_reserva
+};
+
+\node[entity, right=4.5cm of reservas] (espacios) {
+    \textbf{espacios\_deportivos}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    nombre : VARCHAR(150) \\
+    codigo\_interno : VARCHAR(30) [UQ] \\
+    tipo : tipo\_espacio \\
+    superficie : tipo\_superficie \\
+    es\_techado : BOOLEAN \\
+    capacidad : INT \\
+    es\_mixta : BOOLEAN
+};
+
+\node[entity, below=3.5cm of reservas] (disciplinas) {
+    \textbf{disciplinas\_deportivas}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    nombre : VARCHAR(60) \\
+    codigo : deporte\_permitido [UQ] \\
+    descripcion : TEXT
+};
+
+\node[entity, below=3.5cm of espacios] (espdeportes) {
+    \textbf{espacio\_deportes}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    espacio\_id : UUID (FK) \\
+    disciplina\_id : UUID (FK)
+};
+
+\node[entity, below=3.5cm of usuarios] (auditoria) {
+    \textbf{auditoria\_reservas}
+    \nodepart{second}
+    \underline{id} : UUID (PK) \\
+    reserva\_id : UUID (FK) \\
+    estado\_anterior : estado\_reserva \\
+    estado\_nuevo : estado\_reserva \\
+    descripcion : TEXT \\
+    realizado\_por : VARCHAR(150)
+};
+
+% ── Relaciones (líneas) ──
+% usuarios 1 ──── 0..* reservas
+\draw[arrow] (usuarios.east |- usuarios.second south) -- node[above, cardinality] {1} ++(0.8,0) -- node[above, cardinality] {0..*} (reservas.west |- reservas.second south);
+
+% reservas *..1 ──── espacios
+\draw[arrow] (reservas.east |- reservas.second south) -- node[above, cardinality] {0..*} ++(0.8,0) -- node[above, cardinality] {1} (espacios.west |- espacios.second south);
+
+% reservas *..1 ──── disciplinas
+\draw[arrow] (reservas.south) -- node[right, cardinality] {0..*} ++(0,-0.8) -- node[right, cardinality] {1} (disciplinas.north);
+
+% reservas 1 ──── 0..* auditoria
+\draw[arrow] (reservas.west |- reservas.south) -- node[left, cardinality, xshift=-3pt] {1} ++(-2.2,-1.5) -- node[left, cardinality, xshift=-3pt] {0..*} (auditoria.north east);
+
+% espacios 1 ──── 0..* espacio_deportes
+\draw[arrow] (espacios.south) -- node[right, cardinality] {1} ++(0,-0.8) -- node[right, cardinality] {0..*} (espdeportes.north);
+
+% disciplinas 1 ──── 0..* espacio_deportes
+\draw[arrow] (disciplinas.east) -- node[above, cardinality] {1} ++(1.5,0) -- node[above, cardinality] {0..*} (espdeportes.west);
+
+\end{tikzpicture}
+}%
+\caption{Diagrama Entidad--Relación del módulo de espacios deportivos de UNAL Space.}
+\label{fig:er-diagram}
+\end{figure}
+
+
+\subsection{Cardinalidades}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{l c l X}
+    \toprule
+    \textbf{Entidad A} & \textbf{Cardinalidad} & \textbf{Entidad B} & \textbf{Descripción} \\
+    \midrule
+    \tname{usuarios} & $1 \longleftrightarrow 0..*$ & \tname{reservas} &
+        Un estudiante puede tener cero o muchas reservas. Cada reserva pertenece a exactamente un estudiante. \\
+    \addlinespace
+    \tname{espacios\_deportivos} & $1 \longleftrightarrow 0..*$ & \tname{reservas} &
+        Un espacio deportivo puede tener cero o muchas reservas. Cada reserva se realiza sobre exactamente un espacio. \\
+    \addlinespace
+    \tname{disciplinas\_deportivas} & $1 \longleftrightarrow 0..*$ & \tname{reservas} &
+        Una disciplina puede estar asociada a muchas reservas. Cada reserva especifica exactamente una disciplina. \\
+    \addlinespace
+    \tname{espacios\_deportivos} & $1 \longleftrightarrow 0..*$ & \tname{espacio\_deportes} &
+        Un espacio admite uno o más deportes. \\
+    \addlinespace
+    \tname{disciplinas\_deportivas} & $1 \longleftrightarrow 0..*$ & \tname{espacio\_deportes} &
+        Una disciplina puede practicarse en uno o más espacios. \\
+    \addlinespace
+    \tname{reservas} & $1 \longleftrightarrow 0..*$ & \tname{auditoria\_reservas} &
+        Cada reserva puede tener múltiples registros de auditoría (uno por cada cambio de estado). \\
+    \bottomrule
+\end{tabularx}
+\caption{Tabla de cardinalidades entre entidades.}
+\end{table}
+
+\textbf{Nota sobre la relación muchos--a--muchos:} La relación entre \tname{espacios\_deportivos} y \tname{disciplinas\_deportivas} es de tipo $M:N$ y se resuelve a través de la tabla intermedia \tname{espacio\_deportes}, que define qué deportes se pueden practicar en cada espacio.
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Diccionario de Datos}
+% ════════════════════════════════════════════════════════════════════════════
+
+A continuación se documenta cada tabla con sus columnas, tipos de dato, restricciones y descripción funcional.
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{usuarios}}
+
+Almacena la información de los estudiantes autorizados para realizar reservas.
+
+\begin{longtable}{l l c l p{5cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{nombres} & VARCHAR(100) & \nn & --- & Nombres del estudiante. \\
+    \cname{apellidos} & VARCHAR(100) & \nn & --- & Apellidos del estudiante. \\
+    \cname{documento} & VARCHAR(20) & \nn, \uq & --- & Cédula de ciudadanía o tarjeta de identidad. \\
+    \cname{codigo\_estudiantil} & VARCHAR(20) & \nn, \uq & --- & Código de matrícula universitaria. \\
+    \cname{correo} & VARCHAR(150) & \nn, \uq, \chk & --- & Correo institucional. Validado con regex: \texttt{@unal.edu.co}. \\
+    \cname{facultad} & VARCHAR(120) & \nn & --- & Facultad a la que pertenece. \\
+    \cname{activo} & BOOLEAN & \nn & \texttt{TRUE} & Indica si el usuario está habilitado. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Fecha y hora de creación. \\
+    \cname{actualizado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Última modificación (auto-actualizada por trigger). \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{usuarios}.}
+\end{longtable}
+
+\textbf{Constraint de correo institucional:}
+\begin{lstlisting}[caption={Validación de correo @unal.edu.co.}]
+CONSTRAINT ck_usuario_correo_unal
+    CHECK (correo ~* '^[A-Za-z0-9._%+-]+@unal\.edu\.co$')
+\end{lstlisting}
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{disciplinas\_deportivas}}
+
+Catálogo maestro de disciplinas deportivas disponibles en el campus.
+
+\begin{longtable}{l l c l p{5cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{nombre} & VARCHAR(60) & \nn & --- & Nombre legible de la disciplina. \\
+    \cname{codigo} & \texttt{deporte\_permitido} & \nn, \uq & --- & Código ENUM de la disciplina. \\
+    \cname{descripcion} & TEXT & --- & --- & Descripción opcional. \\
+    \cname{activo} & BOOLEAN & \nn & \texttt{TRUE} & Estado operativo. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Fecha de creación. \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{disciplinas\_deportivas}.}
+\end{longtable}
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{espacios\_deportivos}}
+
+Inventario físico de canchas, estadios y escenarios deportivos del campus.
+
+\begin{longtable}{l l c l p{4.5cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{nombre} & VARCHAR(150) & \nn & --- & Nombre oficial del espacio. \\
+    \cname{codigo\_interno} & VARCHAR(30) & \nn, \uq & --- & Código corto (ej. \texttt{TCH-001}). \\
+    \cname{descripcion} & TEXT & --- & --- & Descripción detallada. \\
+    \cname{tipo} & \texttt{tipo\_espacio} & \nn & --- & Clasificación física. \\
+    \cname{superficie} & \texttt{tipo\_superficie} & \nn & --- & Material de superficie. \\
+    \cname{ubicacion} & VARCHAR(200) & --- & --- & Ubicación referencial en el campus. \\
+    \cname{edificio} & VARCHAR(80) & --- & --- & Código/nombre de edificio si aplica. \\
+    \cname{es\_techado} & BOOLEAN & \nn & \texttt{FALSE} & Si tiene techo o cubierta. \\
+    \cname{capacidad} & INT & \nn, \chk & \texttt{0} & Aforo del espacio ($\geq 0$). \\
+    \cname{es\_mixta} & BOOLEAN & \nn & \texttt{FALSE} & Si admite múltiples disciplinas. \\
+    \cname{activo} & BOOLEAN & \nn & \texttt{TRUE} & Estado operativo. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Fecha de creación. \\
+    \cname{actualizado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Última modificación. \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{espacios\_deportivos}.}
+\end{longtable}
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{espacio\_deportes} (tabla intermedia M:N)}
+
+Resuelve la relación muchos--a--muchos entre espacios y disciplinas deportivas, definiendo qué deportes se pueden practicar en cada espacio.
+
+\begin{longtable}{l l c l p{5cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{espacio\_id} & UUID & \fk, \nn & --- & Referencia a \tname{espacios\_deportivos}. \\
+    \cname{disciplina\_id} & UUID & \fk, \nn & --- & Referencia a \tname{disciplinas\_deportivas}. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Fecha de creación. \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{espacio\_deportes}.}
+\end{longtable}
+
+\textbf{Constraint compuesto:} \texttt{UNIQUE (espacio\_id, disciplina\_id)} --- una disciplina solo se asocia una vez por espacio.
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{reservas}}
+
+Tabla central del sistema. Almacena cada reserva de un espacio deportivo por un estudiante.
+
+\begin{longtable}{l l c l p{4.2cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{usuario\_id} & UUID & \fk, \nn & --- & Estudiante que reserva. \\
+    \cname{espacio\_id} & UUID & \fk, \nn & --- & Espacio reservado. \\
+    \cname{disciplina\_id} & UUID & \fk, \nn & --- & Deporte a practicar. \\
+    \cname{fecha\_inicio} & TIMESTAMPTZ & \nn & --- & Inicio de la reserva. \\
+    \cname{fecha\_fin} & TIMESTAMPTZ & \nn & --- & Fin de la reserva. \\
+    \cname{rango\_horario} & TSTZRANGE & \nn & \textit{GENERATED} & Rango temporal auto-generado (\texttt{[inicio, fin)}). \\
+    \cname{estado} & \texttt{estado\_reserva} & \nn & \texttt{PENDIENTE} & Estado actual del ciclo de vida. \\
+    \cname{motivo\_cancelacion} & TEXT & --- & --- & Razón de cancelación si aplica. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Fecha de creación. \\
+    \cname{actualizado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Última modificación. \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{reservas}.}
+\end{longtable}
+
+\textbf{Columna generada:}
+\begin{lstlisting}[caption={Rango temporal generado automáticamente.}]
+rango_horario TSTZRANGE NOT NULL
+    GENERATED ALWAYS AS (tstzrange(fecha_inicio, fecha_fin, '[)')) STORED
+\end{lstlisting}
+
+% ────────────────────────────────────────────────────────────────────────────
+\subsection{Tabla: \tname{auditoria\_reservas}}
+
+Registro inmutable de cada cambio de estado en las reservas para trazabilidad completa.
+
+\begin{longtable}{l l c l p{4.5cm}}
+    \toprule
+    \textbf{Columna} & \textbf{Tipo} & \textbf{Restr.} & \textbf{Default} & \textbf{Descripción} \\
+    \midrule
+    \endhead
+    \cname{id} & UUID & \pk & \texttt{uuid\_generate\_v4()} & Identificador único. \\
+    \cname{reserva\_id} & UUID & \fk, \nn & --- & Reserva auditada. \\
+    \cname{estado\_anterior} & \texttt{estado\_reserva} & --- & --- & Estado previo (NULL en creación). \\
+    \cname{estado\_nuevo} & \texttt{estado\_reserva} & \nn & --- & Nuevo estado. \\
+    \cname{descripcion} & TEXT & --- & --- & Descripción del cambio. \\
+    \cname{realizado\_por} & VARCHAR(150) & --- & --- & Quién ejecutó el cambio. \\
+    \cname{creado\_en} & TIMESTAMPTZ & \nn & \texttt{NOW()} & Timestamp de auditoría. \\
+    \bottomrule
+    \caption{Diccionario de datos --- \tname{auditoria\_reservas}.}
+\end{longtable}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Constraints y Reglas de Negocio}
+% ════════════════════════════════════════════════════════════════════════════
+
+El sistema implementa una estrategia de \textbf{defensa en profundidad} con tres capas de validación:
+
+\subsection{Capa 1: CHECK Constraints (nivel DDL)}
+
+Restricciones declarativas evaluadas por el motor PostgreSQL de forma atómica:
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{l l X}
+    \toprule
+    \textbf{Constraint} & \textbf{Tabla} & \textbf{Regla} \\
+    \midrule
+    \texttt{ck\_usuario\_correo\_unal} & \tname{usuarios} &
+        El correo debe coincidir con el patrón \texttt{*@unal.edu.co} (regex case-insensitive). \\
+    \texttt{ck\_reserva\_orden\_fechas} & \tname{reservas} &
+        \texttt{fecha\_fin > fecha\_inicio}. \\
+    \texttt{ck\_reserva\_duracion} & \tname{reservas} &
+        Duración entre 3600 y 7200 segundos (1--2 horas). \\
+    \texttt{ck\_reserva\_horario\_apertura} & \tname{reservas} &
+        Hora local entre 06:00 y 21:00 (America/Bogota). \\
+    \texttt{ck\_reserva\_dia\_habil} & \tname{reservas} &
+        ISODOW entre 1 (lunes) y 5 (viernes). \\
+    \texttt{ck\_espacio\_capacidad} & \tname{espacios\_deportivos} &
+        \texttt{capacidad >= 0}. \\
+    \bottomrule
+\end{tabularx}
+\caption{CHECK constraints implementados.}
+\end{table}
+
+\subsection{Capa 2: EXCLUDE USING GiST (anti-solapamiento ACID)}
+
+Esta es la restricción más crítica del sistema. Utiliza la extensión \texttt{btree\_gist} y la columna generada \texttt{rango\_horario} (tipo \texttt{TSTZRANGE}) para garantizar a nivel de motor que \textbf{es físicamente imposible} crear dos reservas que se solapen en el mismo espacio:
+
+\begin{lstlisting}[caption={Restricción de exclusión GiST para anti-solapamiento.}]
+ALTER TABLE reservas
+    ADD CONSTRAINT excl_reserva_sin_solapamiento
+        EXCLUDE USING gist (
+            espacio_id    WITH =,
+            rango_horario WITH &&
+        )
+        WHERE (estado IN ('PENDIENTE', 'CONFIRMADA'));
+\end{lstlisting}
+
+\textbf{Semántica:} Si dos filas tienen el mismo \texttt{espacio\_id} (operador \texttt{=}) y sus rangos temporales se solapan (operador \texttt{\&\&}), y ambas están en estado activo (\texttt{PENDIENTE} o \texttt{CONFIRMADA}), PostgreSQL rechaza la inserción con un error de exclusión. Esta garantía es transaccional (ACID) y resistente a concurrencia.
+
+\subsection{Capa 3: Triggers de Validación Programática}
+
+Un trigger \texttt{BEFORE INSERT OR UPDATE} en la tabla \tname{reservas} ejecuta la función \texttt{fn\_validar\_reserva()} que realiza validaciones adicionales con mensajes de error descriptivos en español:
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Día hábil:} Verifica que la fecha no sea sábado ni domingo.
+    \item \textbf{Franja horaria:} Confirma que el inicio $\geq$ 06:00 y el fin $\leq$ 21:00.
+    \item \textbf{Duración:} Valida que esté entre 60 y 120 minutos.
+    \item \textbf{Solapamiento personal:} Verifica que el mismo estudiante no tenga otra reserva activa que se solape en la misma franja del mismo día.
+    \item \textbf{Disciplina válida:} Confirma que la disciplina seleccionada esté habilitada para ese espacio (mediante la tabla \tname{espacio\_deportes}).
+\end{enumerate}
+
+\begin{lstlisting}[caption={Fragmento del trigger de validación de reservas.}]
+CREATE OR REPLACE FUNCTION fn_validar_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+    v_hora_inicio   TIME;
+    v_hora_fin      TIME;
+    v_dia_semana    INT;
+    v_duracion_min  DOUBLE PRECISION;
+    v_fecha_local   DATE;
+    v_reservas_dia  INT;
+BEGIN
+    v_hora_inicio := (NEW.fecha_inicio AT TIME ZONE 'America/Bogota')::time;
+    v_hora_fin    := (NEW.fecha_fin AT TIME ZONE 'America/Bogota')::time;
+    v_dia_semana  := EXTRACT(ISODOW FROM
+                        NEW.fecha_inicio AT TIME ZONE 'America/Bogota');
+    v_duracion_min := EXTRACT(EPOCH FROM
+                        (NEW.fecha_fin - NEW.fecha_inicio)) / 60.0;
+
+    -- a) Solo dias habiles (lunes a viernes)
+    IF v_dia_semana NOT BETWEEN 1 AND 5 THEN
+        RAISE EXCEPTION '[UNAL SPACE] Solo Lunes a Viernes.';
+    END IF;
+
+    -- b) Franja horaria 06:00 - 21:00
+    IF v_hora_inicio < '06:00:00'::time THEN
+        RAISE EXCEPTION '[UNAL SPACE] Inicio anterior a 06:00.';
+    END IF;
+    IF v_hora_fin > '21:00:00'::time THEN
+        RAISE EXCEPTION '[UNAL SPACE] Fin posterior a 21:00.';
+    END IF;
+
+    -- c) Duracion entre 60 y 120 minutos
+    IF v_duracion_min < 60 OR v_duracion_min > 120 THEN
+        RAISE EXCEPTION '[UNAL SPACE] Duracion fuera de rango.';
+    END IF;
+
+    -- d) Sin solapamiento personal del mismo estudiante
+    SELECT COUNT(*) INTO v_reservas_dia FROM reservas r
+    WHERE r.usuario_id = NEW.usuario_id
+      AND r.estado IN ('PENDIENTE', 'CONFIRMADA')
+      AND r.rango_horario && tstzrange(
+            NEW.fecha_inicio, NEW.fecha_fin, '[)')
+      AND (TG_OP = 'INSERT' OR r.id <> NEW.id);
+
+    IF v_reservas_dia > 0 THEN
+        RAISE EXCEPTION '[UNAL SPACE] Solapamiento personal.';
+    END IF;
+
+    NEW.actualizado_en := NOW();
+    RETURN NEW;
+END;
+$$;
+\end{lstlisting}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Inventario de Espacios Deportivos}
+% ════════════════════════════════════════════════════════════════════════════
+
+El campus cuenta con \textbf{12 espacios deportivos} distribuidos en la zona deportiva:
+
+\begin{landscape}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\small
+\begin{tabular}{c l l l l c c l}
+    \toprule
+    \textbf{\#} & \textbf{Código} & \textbf{Nombre} & \textbf{Tipo} & \textbf{Superficie} & \textbf{Techado} & \textbf{Cap.} & \textbf{Deportes} \\
+    \midrule
+    1  & \texttt{EST-001} & Estadio Alfonso López Pumarejo        & Estadio          & Grama natural      & No & 6000 & Fútbol 11 \\
+    2  & \texttt{CON-001} & Concha Acústica -- Cancha Mixta 1      & Concha Acústica  & Cemento            & Sí & 40   & F.~Sala, Basquet, Volei \\
+    3  & \texttt{CON-002} & Concha Acústica -- Cancha Mixta 2      & Concha Acústica  & Cemento            & Sí & 40   & F.~Sala, Basquet, Volei \\
+    4  & \texttt{TCH-001} & Cancha Techada Mixta 1                 & Techada          & Caucho sintético   & Sí & 30   & F.~Sala, Basquet, Volei \\
+    5  & \texttt{TCH-002} & Cancha Techada Mixta 2                 & Techada          & Caucho sintético   & Sí & 30   & F.~Sala, Basquet, Volei \\
+    6  & \texttt{DES-001} & Cancha Destechada Mixta 1              & Destechada       & Cemento            & No & 30   & F.~Sala, Basquet, Volei \\
+    7  & \texttt{DES-002} & Cancha Destechada Mixta 2              & Destechada       & Cemento            & No & 30   & F.~Sala, Basquet, Volei \\
+    8  & \texttt{DES-003} & Cancha Destechada Mixta 3              & Destechada       & Cemento            & No & 30   & F.~Sala, Basquet, Volei \\
+    9  & \texttt{BAL-001} & Cancha de Baloncesto Azul              & Destechada       & Caucho sintético   & No & 20   & Baloncesto \\
+    10 & \texttt{TEN-001} & Cancha de Tenis 1                      & Tenis            & Polvo de ladrillo  & No & 4    & Tenis \\
+    11 & \texttt{TEN-002} & Cancha de Tenis 2                      & Tenis            & Polvo de ladrillo  & No & 4    & Tenis \\
+    12 & \texttt{TEN-003} & Cancha de Tenis 3                      & Tenis            & Polvo de ladrillo  & No & 4    & Tenis \\
+    \bottomrule
+\end{tabular}
+\caption{Inventario completo de los 12 espacios deportivos del campus.}
+\label{tab:inventario}
+\end{table}
+\end{landscape}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Sistema de Auditoría}
+% ════════════════════════════════════════════════════════════════════════════
+
+El sistema implementa un mecanismo de auditoría automatizada mediante un trigger \texttt{AFTER INSERT OR UPDATE} en la tabla \tname{reservas} que registra cada cambio de estado en la tabla \tname{auditoria\_reservas}:
+
+\begin{lstlisting}[caption={Trigger de auditoría (AFTER --- ejecuta después de confirmar la fila).}]
+CREATE OR REPLACE FUNCTION fn_auditar_estado_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO auditoria_reservas
+            (reserva_id, estado_anterior, estado_nuevo,
+             descripcion, realizado_por)
+        VALUES (NEW.id, NULL, NEW.estado,
+                'Reserva creada.', 'SISTEMA');
+    ELSIF TG_OP = 'UPDATE'
+          AND OLD.estado IS DISTINCT FROM NEW.estado THEN
+        INSERT INTO auditoria_reservas
+            (reserva_id, estado_anterior, estado_nuevo,
+             descripcion, realizado_por)
+        VALUES (NEW.id, OLD.estado, NEW.estado,
+            CASE NEW.estado
+                WHEN 'CONFIRMADA' THEN 'Reserva confirmada.'
+                WHEN 'CANCELADA'  THEN 'Reserva cancelada.'
+                WHEN 'FINALIZADA' THEN 'Bloque horario transcurrido.'
+                WHEN 'NO_SHOW'    THEN 'Estudiante no se presento.'
+                ELSE 'Cambio de estado.'
+            END, 'SISTEMA');
+    END IF;
+    RETURN NULL;  -- AFTER trigger: retorno ignorado
+END;
+$$;
+\end{lstlisting}
+
+\textbf{Nota técnica:} El trigger es de tipo \texttt{AFTER} (no \texttt{BEFORE}) porque necesita referenciar la fila ya insertada en \tname{reservas} mediante la foreign key de \tname{auditoria\_reservas}. Un trigger \texttt{BEFORE} causaría el error \texttt{23503} (violación de llave foránea) al intentar insertar en la tabla de auditoría antes de que la reserva exista.
+
+\subsection{Diagrama de estados de una reserva}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    state/.style={
+        rectangle, rounded corners=8pt, draw=unalverde, thick,
+        fill=unalclaro, minimum width=2.8cm, minimum height=0.9cm,
+        font=\small\bfseries, text=unalgris
+    },
+    trans/.style={-Stealth, thick, color=unalgris},
+    label/.style={font=\scriptsize, color=sqlorange, fill=white, inner sep=2pt}
+]
+    \node[state] (pendiente)   at (0,0)     {PENDIENTE};
+    \node[state] (confirmada)  at (5,0)     {CONFIRMADA};
+    \node[state] (cancelada)   at (0,-2.5)  {CANCELADA};
+    \node[state] (finalizada)  at (5,-2.5)  {FINALIZADA};
+    \node[state] (noshow)      at (10,-2.5) {NO\_SHOW};
+
+    \draw[trans] (pendiente) -- node[label, above] {confirmar} (confirmada);
+    \draw[trans] (pendiente) -- node[label, left]  {cancelar}  (cancelada);
+    \draw[trans] (confirmada) -- node[label, right] {finalizar} (finalizada);
+    \draw[trans] (confirmada) -- node[label, above] {no show}   (noshow);
+    \draw[trans] (confirmada.south west) -- node[label, below, sloped] {cancelar} (cancelada.north east);
+\end{tikzpicture}
+\caption{Diagrama de transición de estados de una reserva.}
+\label{fig:estados}
+\end{figure}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Índices Optimizados}
+% ════════════════════════════════════════════════════════════════════════════
+
+Se crearon índices para optimizar las consultas más frecuentes del sistema:
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{l l l X}
+    \toprule
+    \textbf{Índice} & \textbf{Tabla} & \textbf{Tipo} & \textbf{Propósito} \\
+    \midrule
+    \texttt{idx\_reservas\_fecha\_inicio} & reservas & B-tree & Búsquedas por rango de fecha. \\
+    \texttt{idx\_reservas\_estado} & reservas & B-tree & Filtrado por estado. \\
+    \texttt{idx\_reservas\_fecha\_estado} & reservas & B-tree compuesto & Consultas combinadas fecha + estado. \\
+    \texttt{idx\_reservas\_usuario} & reservas & B-tree & Historial de reservas por estudiante. \\
+    \texttt{idx\_reservas\_espacio} & reservas & B-tree & Reservas por espacio. \\
+    \texttt{idx\_reservas\_espacio\_rango} & reservas & GiST & Consultas de disponibilidad (espacio + rango temporal). \\
+    \texttt{idx\_auditoria\_reserva} & auditoría & B-tree & Trazabilidad por reserva. \\
+    \texttt{idx\_usuarios\_codigo} & usuarios & B-tree & Búsqueda por código estudiantil. \\
+    \bottomrule
+\end{tabularx}
+\caption{Índices de la base de datos.}
+\end{table}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Vistas y Consultas Analíticas}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Función: \texttt{fn\_disponibilidad\_espacio(UUID, DATE)}}
+
+Genera las 15 franjas horarias de 1 hora (06:00--07:00, 07:00--08:00, \ldots, 20:00--21:00) para un espacio en una fecha dada, indicando si cada franja está disponible u ocupada:
+
+\begin{lstlisting}[caption={Función de disponibilidad de franjas horarias.}]
+SELECT * FROM fn_disponibilidad_espacio(
+    'b0000000-0000-4bbb-bbbb-000000000004'::uuid,  -- TCH-001
+    '2026-09-15'::date
+)
+WHERE disponible = TRUE;
+\end{lstlisting}
+
+\subsection{Vista: \texttt{v\_disponibilidad\_espacios}}
+
+Wrapper sobre la función anterior para uso directo en herramientas BI. Muestra la disponibilidad del día actual para todos los espacios activos.
+
+\subsection{Vista: \texttt{v\_resumen\_reservas}}
+
+Vista consolidada con JOINs de contexto que expone: nombre del estudiante, facultad, espacio, deporte, horario en hora local de Bogotá, duración en horas, día de la semana y estado.
+
+\subsection{Vista analítica: \texttt{v\_ocupacion\_franjas\_por\_deporte}}
+
+Calcula la tasa de ocupación por franja horaria segmentada por deporte, con ranking de demanda. Útil para Data Engineering y Business Intelligence:
+
+\begin{lstlisting}[caption={Consulta de ocupación por franjas y deporte.}]
+SELECT deporte,
+       franja_horaria,
+       total_reservas,
+       porcentaje_ocupacion,
+       ranking_demanda
+FROM v_ocupacion_franjas_por_deporte;
+\end{lstlisting}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Estructura de Archivos SQL}
+% ════════════════════════════════════════════════════════════════════════════
+
+El código fuente se organiza en 5 scripts modulares más un archivo consolidado:
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{c l X}
+    \toprule
+    \textbf{Orden} & \textbf{Archivo} & \textbf{Contenido} \\
+    \midrule
+    1 & \texttt{01\_extensions\_and\_enums.sql} & Extensiones (\texttt{uuid-ossp}, \texttt{btree\_gist}) y 4 tipos ENUM. \\
+    2 & \texttt{02\_schema\_ddl.sql} & 6 tablas, FK, CHECK constraints, EXCLUDE GiST, 8 índices. \\
+    3 & \texttt{03\_triggers\_and\_validations.sql} & 3 funciones trigger: validación, auditoría, auto-timestamp. \\
+    4 & \texttt{04\_seed\_data.sql} & 5 disciplinas, 12 espacios, 3 estudiantes, 3 reservas de prueba. \\
+    5 & \texttt{05\_views\_and\_queries.sql} & Función de disponibilidad, 3 vistas, consultas analíticas. \\
+    \midrule
+    $\star$ & \texttt{DB-UnalSpace.sql} & \textbf{Archivo consolidado} --- contiene todo para ejecución directa. \\
+    \bottomrule
+\end{tabularx}
+\caption{Estructura de archivos del proyecto.}
+\end{table}
+
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Resumen de Integridad Referencial}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{l l l l X}
+    \toprule
+    \textbf{FK} & \textbf{Origen} & \textbf{Destino} & \textbf{On Delete} & \textbf{Justificación} \\
+    \midrule
+    \texttt{usuario\_id}    & reservas            & usuarios              & RESTRICT & No eliminar usuarios con reservas. \\
+    \texttt{espacio\_id}    & reservas            & espacios\_deportivos  & RESTRICT & No eliminar espacios con reservas. \\
+    \texttt{disciplina\_id} & reservas            & disciplinas           & RESTRICT & No eliminar disciplinas referenciadas. \\
+    \texttt{espacio\_id}    & espacio\_deportes   & espacios\_deportivos  & CASCADE  & Si se borra un espacio, borrar sus asociaciones. \\
+    \texttt{disciplina\_id} & espacio\_deportes   & disciplinas           & CASCADE  & Si se borra una disciplina, borrar asociaciones. \\
+    \texttt{reserva\_id}    & auditoria\_reservas & reservas              & CASCADE  & Si se borra una reserva, borrar su log. \\
+    \bottomrule
+\end{tabularx}
+\caption{Mapa de llaves foráneas e integridad referencial.}
+\end{table}
+
+
+\end{document}

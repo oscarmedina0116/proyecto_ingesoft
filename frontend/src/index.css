@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Modern Web Guidance: Native Modal Dialog & Top-Layer Toast Popover Rules
+   ========================================================================== */
+
+/* MANDATORY (both rules): without them, scrolling over the backdrop or inside the dialog scrolls the page behind it */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+/* Scope dialog layout strictly to dialog[open] so closed state is never overridden */
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Popover compatibility rule for native and polyfilled manual toast popovers */
+[popover]:is(:popover-open, .\:popover-open) {
+  display: flex;
+}
+
+.toast-popover {
+  transition: opacity 0.25s ease, transform 0.25s ease, overlay 0.25s ease, display 0.25s ease;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-popover {
+    transition: none;
+  }
+}
+
+/* Container queries and stretched-link semantics for Space Cards (Pattern B — Whole-Card Clickable) */
+article.card {
+  position: relative;
+  container-type: inline-size;
+}
+
+article.card > img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.card-primary-trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Visually hidden utility for screen reader live region context */
+.inclusively-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
