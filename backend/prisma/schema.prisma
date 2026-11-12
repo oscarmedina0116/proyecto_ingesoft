@@ -1,0 +1,170 @@
+// ============================================================================
+// UNAL SPACE — Módulo de Espacios Deportivos (MVP - Incremento 1)
+// Archivo: prisma/schema.prisma
+// Descripción: Esquema Prisma mapeado fielmente a PostgreSQL 16+
+//              (01_extensions_and_enums.sql a 05_views_and_queries.sql).
+// Zona horaria: America/Bogota (UTC-5)
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── 1. Tipos Enumerados Nativos de PostgreSQL ───────────────────────────────
+
+enum TipoEspacio {
+  ESTADIO
+  CONCHA_ACUSTICA
+  CANCHA_TECHADA
+  CANCHA_DESTECHADA
+  CANCHA_TENIS
+
+  @@map("tipo_espacio")
+}
+
+enum TipoSuperficie {
+  GRAMA_NATURAL
+  GRAMA_SINTETICA
+  CEMENTO
+  CAUCHO_SINTETICO
+  POLVO_DE_LADRILLO
+  BALDOSA_DEPORTIVA
+
+  @@map("tipo_superficie")
+}
+
+enum DeportePermitido {
+  FUTBOL_11
+  FUTBOL_SALA
+  BALONCESTO
+  VOLEIBOL
+  TENIS
+
+  @@map("deporte_permitido")
+}
+
+enum EstadoReserva {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+  FINALIZADA
+  NO_SHOW
+
+  @@map("estado_reserva")
+}
+
+// ── 2. Tablas del Modelo Relacional ─────────────────────────────────────────
+
+model Usuario {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nombres           String    @db.VarChar(100)
+  apellidos         String    @db.VarChar(100)
+  documento         String    @unique(map: "uq_usuario_documento") @db.VarChar(20)
+  codigoEstudiantil String    @unique(map: "uq_usuario_codigo") @map("codigo_estudiantil") @db.VarChar(20)
+  correo            String    @unique(map: "uq_usuario_correo") @db.VarChar(150)
+  facultad          String    @db.VarChar(120)
+  activo            Boolean   @default(true)
+  creadoEn          DateTime  @default(now()) @map("creado_en") @db.Timestamptz(6)
+  actualizadoEn     DateTime  @default(now()) @map("actualizado_en") @db.Timestamptz(6)
+
+  reservas          Reserva[]
+
+  @@index([codigoEstudiantil], map: "idx_usuarios_codigo")
+  @@map("usuarios")
+}
+
+model DisciplinaDeportiva {
+  id              String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nombre          String            @db.VarChar(60)
+  codigo          DeportePermitido  @unique(map: "uq_disciplina_codigo")
+  descripcion     String?           @db.Text
+  activo          Boolean           @default(true)
+  creadoEn        DateTime          @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  espacioDeportes EspacioDeporte[]
+  reservas        Reserva[]
+
+  @@map("disciplinas_deportivas")
+}
+
+model EspacioDeportivo {
+  id              String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nombre          String            @db.VarChar(150)
+  codigoInterno   String            @unique(map: "uq_espacio_codigo") @map("codigo_interno") @db.VarChar(30)
+  descripcion     String?           @db.Text
+  tipo            TipoEspacio
+  superficie      TipoSuperficie
+  ubicacion       String?           @db.VarChar(200)
+  edificio        String?           @db.VarChar(80)
+  esTechado       Boolean           @default(false) @map("es_techado")
+  capacidad       Int               @default(0)
+  esMixta         Boolean           @default(false) @map("es_mixta")
+  activo          Boolean           @default(true)
+  creadoEn        DateTime          @default(now()) @map("creado_en") @db.Timestamptz(6)
+  actualizadoEn   DateTime          @default(now()) @map("actualizado_en") @db.Timestamptz(6)
+
+  espacioDeportes EspacioDeporte[]
+  reservas        Reserva[]
+
+  @@map("espacios_deportivos")
+}
+
+model EspacioDeporte {
+  id            String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  espacioId     String              @map("espacio_id") @db.Uuid
+  disciplinaId  String              @map("disciplina_id") @db.Uuid
+  creadoEn      DateTime            @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  espacio       EspacioDeportivo    @relation(fields: [espacioId], references: [id], onDelete: Cascade, map: "fk_ed_espacio")
+  disciplina    DisciplinaDeportiva @relation(fields: [disciplinaId], references: [id], onDelete: Cascade, map: "fk_ed_disciplina")
+
+  @@unique([espacioId, disciplinaId], map: "uq_espacio_disciplina")
+  @@map("espacio_deportes")
+}
+
+model Reserva {
+  id                String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuarioId         String                   @map("usuario_id") @db.Uuid
+  espacioId         String                   @map("espacio_id") @db.Uuid
+  disciplinaId      String                   @map("disciplina_id") @db.Uuid
+  fechaInicio       DateTime                 @map("fecha_inicio") @db.Timestamptz(6)
+  fechaFin          DateTime                 @map("fecha_fin") @db.Timestamptz(6)
+  rangoHorario      Unsupported("tstzrange")? @default(dbgenerated("tstzrange(fecha_inicio, fecha_fin, '[)'::text)")) @map("rango_horario")
+  estado            EstadoReserva            @default(PENDIENTE)
+  motivoCancelacion String?                  @map("motivo_cancelacion") @db.Text
+  creadoEn          DateTime                 @default(now()) @map("creado_en") @db.Timestamptz(6)
+  actualizadoEn     DateTime                 @default(now()) @map("actualizado_en") @db.Timestamptz(6)
+
+  usuario           Usuario                  @relation(fields: [usuarioId], references: [id], onDelete: Restrict, map: "fk_reserva_usuario")
+  espacio           EspacioDeportivo         @relation(fields: [espacioId], references: [id], onDelete: Restrict, map: "fk_reserva_espacio")
+  disciplina        DisciplinaDeportiva      @relation(fields: [disciplinaId], references: [id], onDelete: Restrict, map: "fk_reserva_disciplina")
+  auditorias        AuditoriaReserva[]
+
+  @@index([fechaInicio], map: "idx_reservas_fecha_inicio")
+  @@index([estado], map: "idx_reservas_estado")
+  @@index([fechaInicio, estado], map: "idx_reservas_fecha_estado")
+  @@index([usuarioId], map: "idx_reservas_usuario")
+  @@index([espacioId], map: "idx_reservas_espacio")
+  @@map("reservas")
+}
+
+model AuditoriaReserva {
+  id             String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  reservaId      String         @map("reserva_id") @db.Uuid
+  estadoAnterior EstadoReserva? @map("estado_anterior")
+  estadoNuevo    EstadoReserva  @map("estado_nuevo")
+  descripcion    String?        @db.Text
+  realizadoPor   String?        @map("realizado_por") @db.VarChar(150)
+  creadoEn       DateTime       @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  reserva        Reserva        @relation(fields: [reservaId], references: [id], onDelete: Cascade, map: "fk_auditoria_reserva")
+
+  @@index([reservaId], map: "idx_auditoria_reserva")
+  @@map("auditoria_reservas")
+}
+

@@ -30,6 +30,7 @@ Adicionalmente, este dominio resulta apropiado para el desarrollo del proyecto p
 
 ## 3 Propuesta de implementación
 
+<## 3 Propuesta de implementación
 <!--
 Este es el núcleo de tu propuesta, y su proposito es ayudarte a pensar en la solución. Esto debe ser un wireframe, no un documento perfecto con todos los detalles.
 
@@ -41,8 +42,15 @@ Escribir es pensar https://medium.learningbyshipping.com/writing-is-thinking-an-
 
 El proposito de esta sección se resume en:
 "Esta es la dirección en la que nos voy a llevar, alguién ve huecos en mi propuesta o tiene comentarios sobre cómo mejorarla?
+-->
 
- -->
+Proponemos una aplicación web con arquitectura cliente-servidor: un frontend que consume una API REST, la cual se conecta a una base de datos relacional. Los dos roles principales son **estudiante** (consulta disponibilidad y crea/cancela sus propias reservas) y **administrador** (gestiona el catálogo de espacios y aprueba reservas en espacios que lo requieran).
+
+El flujo central es sencillo: el estudiante elige un espacio y un horario, el sistema valida que no haya traslape con otra reserva existente, y de ser válida la guarda con estado `pendiente` hasta su aprobación o uso. Reservas no confirmadas se liberan automáticamente pasado un tiempo definido.
+
+Como stack proponemos Python + Flask para el backend y PostgreSQL (o SQLite en desarrollo) para la base de datos, dejando el frontend a definir en equipo según la complejidad que queramos asumir.
+
+Quedan abiertas para discusión: si la aprobación de admin aplica a todos los espacios o solo a los especiales (labs), y el tiempo exacto antes de liberar una reserva pendiente sin confirmar.
 
 ## 4 Métricas
 
