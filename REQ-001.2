@@ -1,0 +1,24 @@
+Como estudiante universitario,
+Quiero consultar el estado de disponibilidad de cualquier espacio del campus,
+Para saber si está libre antes de trasladarme o planificar una actividad.
+
+Criterios de Aceptación
+Escenario 1: Consulta exitosa de disponibilidad 
+Dado que el estudiante se encuentra en la pantalla de búsqueda de espacios,
+Cuando ingresa o selecciona un espacio universitario válido y ejecuta la consulta,
+Entonces el sistema muestra el estado de disponibilidad actual del espacio (ej. Disponible, Ocupado, En mantenimiento).
+
+Escenario 2: Cumplimiento del tiempo de respuesta (RNF-01 - Desempeño)
+Dado que el estudiante hace clic en la opción de consultar disponibilidad,
+Cuando el sistema procesa la solicitud,
+Entonces la respuesta con los resultados debe cargarse completamente en la pantalla en un tiempo máximo de 10 segundos.
+
+Escenario 3: Búsqueda de un espacio inexistente o sin datos
+Dado que el estudiante busca un espacio que no existe en el registro del sistema,
+Cuando solicita la consulta,
+Entonces el sistema despliega un mensaje notificando: "No se encontró el espacio especificado. Por favor, verifica el nombre e intenta nuevamente".
+
+Lista de Verificación Adicional 
+El filtro de búsqueda debe permitir consultar cualquier espacio registrado en el catálogo universitario.
+
+La información mostrada debe reflejar el estado del espacio al momento exacto de la consulta (tiempo real).

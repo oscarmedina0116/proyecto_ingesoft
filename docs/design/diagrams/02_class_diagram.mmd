@@ -1,0 +1,103 @@
+classDiagram
+    direction TB
+
+    class Usuario {
+        +UUID id
+        +String correoUnal
+        +Rol rol
+    }
+
+    class Espacio {
+        +UUID id
+        +String nombre
+        +String tipo
+        +String caracteristicas
+        +Integer capacidad
+        +String edificio
+        +String ubicacionRelativa
+        +String imagenUrl
+        +boolean gestionaDisponibilidad
+        +boolean activo
+    }
+
+    class Reserva {
+        +UUID id
+        +UUID usuarioId
+        +UUID espacioId
+        +DateTime fechaInicio
+        +DateTime fechaFin
+        -EstadoReserva estado
+        +confirmar()
+    }
+
+    class GestionEspacios {
+        -EspacioRepository espacioRepository
+        +buscarEspacios(texto: String) List~EspacioResumen~
+        +obtenerDetalle(espacioId: UUID) DetalleEspacio
+    }
+
+    class GestionReservas {
+        -MotorDisponibilidad motor
+        -GestionEspacios gestionEspacios
+        -ReservaRepository reservaRepository
+        -ServicioNotificacion notificador
+        +crearReserva(usuarioId: UUID, espacioId: UUID, inicio: DateTime, fin: DateTime) Reserva
+        +consultarEspaciosConEstado(texto: String) ResultadoBusqueda
+    }
+
+    class MotorDisponibilidad {
+        -ReservaRepository reservaRepository
+        +validarFranja(espacioId: UUID, inicio: DateTime, fin: DateTime) boolean
+        +consultarEstados(espacios: List~EspacioRef~, instante: DateTime) EstadosDisponibilidad
+    }
+
+    class EspacioRepository {
+        <<interface>>
+        +buscarActivosPorTexto(texto: String) List~Espacio~
+        +buscarActivoPorId(espacioId: UUID) Espacio
+    }
+
+    class ReservaRepository {
+        <<interface>>
+        +guardar(reserva: Reserva) Reserva
+        +obtenerConfirmadasEnInstante(espacioIds: List~UUID~, instante: DateTime) List~Reserva~
+        +existeCruce(espacioId: UUID, inicio: DateTime, fin: DateTime) boolean
+    }
+
+    class ServicioNotificacion {
+        +enviarConfirmacion(reserva: Reserva) void
+    }
+
+    class EstadoDisponibilidad {
+        <<enumeration>>
+        DISPONIBLE
+        OCUPADO
+        NO_REGISTRADO
+    }
+
+    class EstadoReserva {
+        <<enumeration>>
+        PENDIENTE
+        CONFIRMADA
+        CANCELADA
+    }
+
+    class Rol {
+        <<enumeration>>
+        ESTUDIANTE
+        ADMINISTRATIVO
+        SUPERADMIN
+    }
+
+    Usuario "1" --> "*" Reserva : realiza
+    Espacio "1" --> "*" Reserva : tiene
+    GestionReservas --> Reserva : gestiona
+    GestionReservas ..> MotorDisponibilidad : depende de
+    GestionReservas ..> GestionEspacios : consulta espacios
+    GestionReservas ..> ServicioNotificacion : notifica sin bloquear
+    GestionReservas ..> ReservaRepository : persiste
+    MotorDisponibilidad ..> ReservaRepository : lee
+    MotorDisponibilidad ..> EstadoDisponibilidad : retorna
+    GestionEspacios ..> EspacioRepository : lee
+    Reserva --> EstadoReserva
+    Usuario --> Rol
