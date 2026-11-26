@@ -15,7 +15,7 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - unal_space_pgdata:/var/lib/postgresql/data
-      - ./DB-UnalSpace.sql:/docker-entrypoint-initdb.d/01-init-unal-space.sql:ro
+      - ./database/DB-UnalSpace.sql:/docker-entrypoint-initdb.d/01-init-unal-space.sql:ro
     command:
       - "postgres"
       - "-c"

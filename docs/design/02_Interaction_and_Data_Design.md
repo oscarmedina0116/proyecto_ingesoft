@@ -6,7 +6,7 @@
 | **Members** | Oscar Andrés Andrade Medina, Oscar David Ariza Rojas, David Fernando Ordoñez Pérez, Juan Sebastián Rodríguez León |
 | **Status** | Ready for review |
 | **Date** | 2026-10-24 |
-| **Inputs** | `docs/design/01_Architectural_and_Detailed_Design.md` (v1.1, actualizado por este entregable), Use Cases en `REQ-01.md` §4.3 y `REQ-02.md` §4.3, historias `docs/HU-001.md` y `HU-002.md`, `Workshop/Class15_AI_Decision_Log_oandradem.md`, borrador de base de datos `DB_000.sql` (rama `oariza`), Interaction & Contracts Design v0.1 (Clase 13) |
+| **Inputs** | `docs/design/01_Architectural_and_Detailed_Design.md` (v1.1, actualizado por este entregable), Use Cases en `docs/requirements/REQ-01.md` §4.3 y `docs/requirements/REQ-02.md` §4.3, historias `docs/user-stories/HU-001.md` y `docs/user-stories/HU-002.md`, `Workshop/Class15_AI_Decision_Log_oandradem.md`, borrador de base de datos `database/drafts/DB_000.sql` (rama `oariza`), Interaction & Contracts Design v0.1 (Clase 13) |
 
 > **Nota sobre las fuentes.** Los casos de uso del equipo están escritos dentro de cada requerimiento (sección 4.3 de `REQ-01.md` y `REQ-02.md`) y no en una carpeta `docs/requirements/`. Cada diagrama de este documento traza a esos casos de uso. Nada de lo que aparece aquí agrega comportamiento de negocio: lo que los requerimientos no definen se marca como **Supuesto (S-x)** o como **Pregunta abierta (PA-x)** en la Sección 5.
 

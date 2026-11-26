@@ -111,7 +111,7 @@ flowchart LR
 │   │   ├── shared/
 │   │   │   ├── constants/app-constants.ts         # Constantes globales en UPPER_SNAKE_CASE
 │   │   │   ├── database/prisma.ts                 # Singleton PrismaClient conectado a PostgreSQL
-│   │   │   ├── database/init-db.ts                # Auto-inicializador de DB-UnalSpace.sql
+│   │   │   ├── database/init-db.ts                # Auto-inicializador de database/DB-UnalSpace.sql
 │   │   │   ├── middlewares/auth-jwt.ts            # Emisión y validación JWT (@unal.edu.co)
 │   │   │   └── middlewares/error-handler.ts       # Control de timeout (< 10s) y manejo de errores
 │   │   └── server.ts                              # Punto de entrada del servidor HTTP (Puerto 3001)
@@ -147,22 +147,41 @@ flowchart LR
 │   ├── tailwind.config.js
 │   ├── tsconfig.json
 │   └── vite.config.ts
+├── database/
+│   ├── 01_extensions_and_enums.sql                # Extensiones (uuid-ossp, btree_gist) y ENUMs
+│   ├── 02_schema_ddl.sql                          # Tablas relacionales e índices GiST anti-solapamiento
+│   ├── 03_triggers_and_validations.sql            # Triggers de validación horaria y de disciplinas
+│   ├── 04_seed_data.sql                           # Datos semilla de los 12 espacios deportivos UNAL
+│   ├── 05_views_and_queries.sql                   # Vistas y función fn_disponibilidad_espacio()
+│   ├── DB-UnalSpace.sql                           # Script maestro consolidado de PostgreSQL 16+
+│   └── drafts/
+│       └── DB_000.sql                             # Borrador inicial del modelo (histórico, no se ejecuta)
 ├── docs/
-│   ├── adr/
+│   ├── adr/                                       # Decisiones de arquitectura (ADRs numerados)
 │   │   ├── 0001-usar-postgresql-como-base-de-datos-principal.md
-│   │   └── 0002-vertical-slice-architecture-fullstack.md
-│   └── rfc/
-│       └── rfc-001-incremento-1-espacios-deportivos.md
-├── 01_extensions_and_enums.sql                    # Extensiones (uuid-ossp, btree_gist) y ENUMs
-├── 02_schema_ddl.sql                              # Tablas relacionales e índices GiST anti-solapamiento
-├── 03_triggers_and_validations.sql                # Triggers de validación horaria y de disciplinas
-├── 04_seed_data.sql                               # Datos semilla de los 12 espacios deportivos UNAL
-├── 05_views_and_queries.sql                       # Vistas y función fn_disponibilidad_espacio()
-├── DB-UnalSpace.sql                               # Script maestro consolidado de PostgreSQL 16+
-├── documentacion_bd_unal_space.tex                # Documentación técnica de la Base de Datos en LaTeX
+│   │   ├── 0002-vertical-slice-architecture-fullstack.md
+│   │   ├── 0003-seleccion-stack-tecnologico.md
+│   │   └── 0004-primer-incremento-y-convenciones.md
+│   ├── rfc/
+│   │   └── rfc-001-incremento-1-espacios-deportivos.md
+│   ├── requirements/                              # Requerimientos del sistema
+│   │   ├── REQ-01.md
+│   │   ├── REQ-02.md
+│   │   └── drafts/REQ-001-borrador.md             # Borrador anterior (histórico)
+│   ├── user-stories/
+│   │   ├── HU-001.md
+│   │   └── HU-002.md
+│   ├── design/                                    # Entregables de diseño
+│   │   ├── 01_Architectural_and_Detailed_Design.md
+│   │   └── 02_Interaction_and_Data_Design.md
+│   ├── database/
+│   │   └── documentacion_bd_unal_space.tex        # Documentación técnica de la Base de Datos en LaTeX
+│   └── templates/                                 # Plantillas institucionales
+│       ├── adr_template.md
+│       ├── rfc_template.md
+│       ├── design-deliverable-1-template.md
+│       └── design-deliverable-2-template.md
 ├── docker-compose.yml                             # Contenedor PostgreSQL 16-alpine (America/Bogota)
-├── adr_template.md                                # Plantilla institucional para ADRs
-├── rfc_template.md                                # Plantilla institucional para RFCs
 └── README.md
 ```
 
@@ -244,14 +263,14 @@ Cada método y función del sistema incluye su bloque de documentación especifi
 - **PostgreSQL** `16+` (local en puerto `5432` o mediante **Docker Compose**).
 
 ### Paso 1: Levantar la Base de Datos PostgreSQL 16+
-Puedes usar Docker Compose (que carga automáticamente `DB-UnalSpace.sql`) o una instancia local de PostgreSQL:
+Puedes usar Docker Compose (que carga automáticamente `database/DB-UnalSpace.sql`) o una instancia local de PostgreSQL:
 
 ```bash
 # Opción A: Con Docker Compose
 docker compose up -d
 ```
 
-> **Inicialización automática:** Al arrancar el backend, `DatabaseInitializer` verifica automáticamente si la base de datos `unal_space` existe en `localhost:5432` y ejecuta `DB-UnalSpace.sql` junto con datos semilla del día hábil actual si aún no ha sido creada.
+> **Inicialización automática:** Al arrancar el backend, `DatabaseInitializer` verifica automáticamente si la base de datos `unal_space` existe en `localhost:5432` y ejecuta `database/DB-UnalSpace.sql` junto con datos semilla del día hábil actual si aún no ha sido creada.
 
 ### Paso 2: Instalar y Ejecutar el Backend (Puerto `3001`)
 ```bash

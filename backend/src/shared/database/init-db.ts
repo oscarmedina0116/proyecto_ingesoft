@@ -7,7 +7,7 @@ dotenv.config();
 
 export const DEFAULT_DATABASE_NAME = 'unal_space';
 export const ADMIN_DATABASE_PATH = '/postgres';
-export const MASTER_SQL_RELATIVE_PATH = '../../../../DB-UnalSpace.sql';
+export const MASTER_SQL_RELATIVE_PATH = '../../../../database/DB-UnalSpace.sql';
 
 /**
  * Clase utilitaria para verificar e inicializar el esquema nativo de PostgreSQL 16+
@@ -16,7 +16,7 @@ export const MASTER_SQL_RELATIVE_PATH = '../../../../DB-UnalSpace.sql';
 export class DatabaseInitializer {
   /**
    * Asegura que la base de datos `unal_space` exista en el servidor PostgreSQL y ejecuta
-   * el script maestro `DB-UnalSpace.sql` si las tablas aún no han sido inicializadas.
+   * el script maestro `database/DB-UnalSpace.sql` si las tablas aún no han sido inicializadas.
    * Además, garantiza que existan reservas activas en la semana/día hábil actual para
    * demostración inmediata de estados "Disponible" y "Ocupado".
    *

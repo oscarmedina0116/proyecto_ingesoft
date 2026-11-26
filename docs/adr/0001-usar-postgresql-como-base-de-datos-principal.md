@@ -21,7 +21,7 @@ El sistema **UNALSpace** gestiona el catálogo, detalle físico, ubicación y re
 
 ## Decisión
 
-Vamos a utilizar **exclusivamente PostgreSQL (versión 16+)** como único motor de base de datos del proyecto, accedido desde el backend en Node.js/TypeScript a través de **Prisma ORM** y consultas SQL parametrizadas sobre las funciones y vistas nativas del esquema (`01_extensions_and_enums.sql` a `05_views_and_queries.sql` / `DB-UnalSpace.sql`).
+Vamos a utilizar **exclusivamente PostgreSQL (versión 16+)** como único motor de base de datos del proyecto, accedido desde el backend en Node.js/TypeScript a través de **Prisma ORM** y consultas SQL parametrizadas sobre las funciones y vistas nativas del esquema (`database/01_extensions_and_enums.sql` a `database/05_views_and_queries.sql` / `database/DB-UnalSpace.sql`).
 
 ## Alternativas consideradas
 
